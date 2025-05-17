@@ -20,6 +20,25 @@ import { Input } from "@/components/ui/input";
 import { Users, User, Shield, Camera } from "lucide-react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
+import NotificationDropdown from "@/components/NotificationDropdown";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogTrigger,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 // Mock users data
 const mockUsers = [
@@ -29,7 +48,8 @@ const mockUsers = [
     email: "ahmed@example.com", 
     role: "مدير", 
     status: "نشط",
-    lastLogin: "2025-05-16 10:30" 
+    lastLogin: "2025-05-16 10:30",
+    permissions: ["view_incidents", "view_reports"]
   },
   { 
     id: 2, 
@@ -37,7 +57,8 @@ const mockUsers = [
     email: "sarah@example.com", 
     role: "مشغل كاميرات", 
     status: "نشط",
-    lastLogin: "2025-05-17 09:15" 
+    lastLogin: "2025-05-17 09:15",
+    permissions: ["view_incidents", "process_incidents", "view_cameras"]
   },
   { 
     id: 3, 
@@ -45,7 +66,8 @@ const mockUsers = [
     email: "mohamed@example.com", 
     role: "أدمن", 
     status: "نشط",
-    lastLogin: "2025-05-17 12:00" 
+    lastLogin: "2025-05-17 12:00",
+    permissions: ["all"]
   },
   { 
     id: 4, 
@@ -53,13 +75,24 @@ const mockUsers = [
     email: "fatima@example.com", 
     role: "مدير", 
     status: "غير نشط",
-    lastLogin: "2025-05-10 11:45" 
+    lastLogin: "2025-05-10 11:45",
+    permissions: ["view_incidents", "view_reports"]
   },
 ];
+
+const rolePermissions = {
+  "أدمن": ["all"],
+  "مدير": ["view_incidents", "view_reports", "export_reports"],
+  "مشغل كاميرات": ["view_incidents", "process_incidents", "view_cameras"]
+};
 
 const UserManagement = () => {
   const [users, setUsers] = useState(mockUsers);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [newRole, setNewRole] = useState("");
+  const { toast } = useToast();
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -80,6 +113,34 @@ const UserManagement = () => {
     }
   };
 
+  const handleRoleChange = () => {
+    if (!selectedUser || !newRole) return;
+    
+    const updatedUsers = users.map(user => 
+      user.id === selectedUser.id 
+        ? { 
+            ...user, 
+            role: newRole, 
+            permissions: rolePermissions[newRole] || [] 
+          } 
+        : user
+    );
+    
+    setUsers(updatedUsers);
+    setIsRoleDialogOpen(false);
+    
+    toast({
+      title: "تم تغيير الصلاحية",
+      description: `تم تغيير صلاحية ${selectedUser.name} إلى ${newRole}`,
+    });
+  };
+
+  const openRoleDialog = (user) => {
+    setSelectedUser(user);
+    setNewRole(user.role);
+    setIsRoleDialogOpen(true);
+  };
+
   return (
     <SidebarProvider>
       <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950">
@@ -95,7 +156,8 @@ const UserManagement = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
+                <NotificationDropdown />
                 <Button>إضافة مستخدم جديد</Button>
               </div>
             </div>
@@ -148,7 +210,13 @@ const UserManagement = () => {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Button variant="ghost" size="sm">تعديل</Button>
-                            <Button variant="ghost" size="sm">تغيير الصلاحية</Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => openRoleDialog(user)}
+                            >
+                              تغيير الصلاحية
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -160,6 +228,85 @@ const UserManagement = () => {
           </main>
         </SidebarInset>
       </div>
+
+      {/* Role Change Dialog */}
+      <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>تغيير صلاحية المستخدم</DialogTitle>
+            <DialogDescription>
+              قم بتحديد الصلاحية الجديدة للمستخدم {selectedUser?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="role" className="text-right">
+                الصلاحية
+              </Label>
+              <Select 
+                value={newRole} 
+                onValueChange={setNewRole}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="اختر الصلاحية" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="أدمن">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-red-500" />
+                      <span>أدمن</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="مدير">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-blue-500" />
+                      <span>مدير</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="مشغل كاميرات">
+                    <div className="flex items-center gap-2">
+                      <Camera className="w-4 h-4 text-green-500" />
+                      <span>مشغل كاميرات</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">الصلاحيات</Label>
+              <div className="col-span-3 text-sm">
+                {newRole && (
+                  <ul className="list-disc list-inside space-y-1">
+                    {rolePermissions[newRole]?.includes("all") ? (
+                      <li>جميع الصلاحيات</li>
+                    ) : (
+                      rolePermissions[newRole]?.map((perm, idx) => (
+                        <li key={idx}>
+                          {perm === "view_incidents" && "عرض البلاغات"}
+                          {perm === "process_incidents" && "معالجة البلاغات"}
+                          {perm === "view_cameras" && "عرض الكاميرات"}
+                          {perm === "view_reports" && "عرض التقارير"}
+                          {perm === "export_reports" && "تصدير التقارير"}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsRoleDialogOpen(false)}
+            >
+              إلغاء
+            </Button>
+            <Button onClick={handleRoleChange}>حفظ التغييرات</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };

@@ -35,9 +35,12 @@ import {
   User
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link, useNavigate } from "react-router-dom";
 import IncidentForm from "@/components/incidents/IncidentForm";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
+import NotificationDropdown from "@/components/NotificationDropdown";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 // Mock incidents data
 const mockIncidents = [
@@ -74,6 +77,14 @@ const Incidents = () => {
   const [incidents, setIncidents] = useState(mockIncidents);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { addNotification } = useNotifications();
+
+  // Mock current user
+  const currentUser = {
+    name: "أحمد محمد",
+    role: "أدمن"
+  };
 
   const filteredIncidents = incidents.filter(incident => 
     incident.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -94,11 +105,19 @@ const Incidents = () => {
       title: "تم إضافة البلاغ",
       description: `تم إضافة البلاغ رقم ${newIncident.id} بنجاح`,
     });
+
+    // Notify camera operators about the new incident
+    addNotification({
+      title: "بلاغ جديد",
+      message: `تم إضافة بلاغ جديد من نوع ${newIncident.type} في ${newIncident.location}`,
+      type: "incident",
+      relatedId: newIncident.id,
+      sender: currentUser.name
+    });
   };
 
   const handleViewDetails = (id) => {
-    console.log(`View details for incident ${id}`);
-    // Will be implemented for detailed view
+    navigate(`/incidents/${id}`);
   };
 
   return (
@@ -117,6 +136,7 @@ const Incidents = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <div className="ml-auto flex items-center gap-2">
+                <NotificationDropdown />
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button>إضافة بلاغ جديد</Button>
@@ -177,7 +197,9 @@ const Incidents = () => {
                               ? "bg-green-100 text-green-800" 
                               : incident.status === "قيد المعالجة" 
                                 ? "bg-blue-100 text-blue-800" 
-                                : "bg-yellow-100 text-yellow-800"
+                                : incident.status === "جديد"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-yellow-100 text-yellow-800"
                           }`}>
                             {incident.status}
                           </span>
