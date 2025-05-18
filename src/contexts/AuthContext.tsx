@@ -15,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // المستخدمين للتجربة
-const mockUsers = [
+const mockUsers: User[] = [
   { 
     id: 1, 
     name: "أحمد محمد", 
@@ -27,6 +27,7 @@ const mockUsers = [
     phoneNumber: "0500000001",
     status: "نشط",
     lastLogin: "2025-05-17 10:23",
+    avatarUrl: "",
     createdAt: "2025-01-15"
   },
   { 
@@ -40,6 +41,7 @@ const mockUsers = [
     phoneNumber: "0500000002",
     status: "نشط",
     lastLogin: "2025-05-17 14:45",
+    avatarUrl: "",
     createdAt: "2025-02-20"
   },
   { 
@@ -53,6 +55,7 @@ const mockUsers = [
     phoneNumber: "0500000003",
     status: "نشط",
     lastLogin: "2025-05-18 09:05",
+    avatarUrl: "",
     createdAt: "2024-12-01"
   }
 ];
@@ -81,16 +84,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const foundUser = mockUsers.find(u => u.email === email && u.password === password);
       
       if (foundUser) {
-        const { password: _, ...userWithoutPassword } = foundUser;
+        // Copy the user object to avoid modifying the mockUsers array
+        const userCopy: User = {...foundUser};
         
         // تحديث وقت آخر تسجيل دخول
-        const updatedUser = {
-          ...userWithoutPassword,
-          lastLogin: new Date().toISOString().replace('T', ' ').substring(0, 16)
-        };
+        userCopy.lastLogin = new Date().toISOString().replace('T', ' ').substring(0, 16);
         
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(userCopy);
+        localStorage.setItem('user', JSON.stringify(userCopy));
         
         toast({
           title: "تم تسجيل الدخول بنجاح",

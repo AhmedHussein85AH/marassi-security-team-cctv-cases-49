@@ -19,24 +19,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, User, Camera } from "lucide-react";
+import { Shield, User as UserIcon, Camera } from "lucide-react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import { Switch } from "@/components/ui/switch";
 import { userService } from "@/services/userService";
+import { User } from "@/types/user";
+
+interface FormData {
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  role?: string;
+}
 
 const EditUser = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     role: "",
     status: "نشط"
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     loadUser();
@@ -55,7 +69,7 @@ const EditUser = () => {
     } catch (error) {
       toast({
         title: "خطأ",
-        description: error.message || "حدث خطأ أثناء تحميل بيانات المستخدم",
+        description: error instanceof Error ? error.message : "حدث خطأ أثناء تحميل بيانات المستخدم",
         variant: "destructive",
       });
       navigate("/users");
@@ -64,14 +78,14 @@ const EditUser = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
     // Clear error when user types
-    if (errors[name]) {
+    if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({
         ...prev,
         [name]: ""
@@ -79,7 +93,7 @@ const EditUser = () => {
     }
   };
 
-  const handleRoleChange = (value) => {
+  const handleRoleChange = (value: string) => {
     setFormData(prev => ({
       ...prev,
       role: value
@@ -93,7 +107,7 @@ const EditUser = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
       newErrors.name = "اسم المستخدم مطلوب";
@@ -113,7 +127,7 @@ const EditUser = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
@@ -130,7 +144,7 @@ const EditUser = () => {
       } catch (error) {
         toast({
           title: "خطأ",
-          description: error.message || "حدث خطأ أثناء تحديث المستخدم",
+          description: error instanceof Error ? error.message : "حدث خطأ أثناء تحديث المستخدم",
           variant: "destructive",
         });
       } finally {
@@ -225,7 +239,7 @@ const EditUser = () => {
                         </SelectItem>
                         <SelectItem value="مدير">
                           <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-blue-500" />
+                            <UserIcon className="w-4 h-4 text-blue-500" />
                             <span>مدير</span>
                           </div>
                         </SelectItem>
@@ -282,4 +296,4 @@ const EditUser = () => {
   );
 };
 
-export default EditUser; 
+export default EditUser;
