@@ -13,3 +13,18 @@ export interface User {
   avatarUrl: string;
   createdAt: string;
 }
+
+export const defaultUserValues: User = {
+  id: 0,
+  name: "",
+  email: "",
+  password: "",
+  role: "",
+  permissions: [],
+  department: "",
+  phoneNumber: "",
+  status: "active",
+  lastLogin: new Date().toISOString(),
+  avatarUrl: "",
+  createdAt: new Date().toISOString()
+};

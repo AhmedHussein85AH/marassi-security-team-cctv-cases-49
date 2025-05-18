@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -17,8 +17,15 @@ interface CreateIncidentDialogProps {
 }
 
 const CreateIncidentDialog: React.FC<CreateIncidentDialogProps> = ({ onSubmit }) => {
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = (incidentData: Partial<Incident>) => {
+    onSubmit(incidentData);
+    setOpen(false);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>إضافة بلاغ جديد</Button>
       </DialogTrigger>
@@ -26,7 +33,7 @@ const CreateIncidentDialog: React.FC<CreateIncidentDialogProps> = ({ onSubmit })
         <DialogHeader>
           <DialogTitle>إضافة بلاغ جديد</DialogTitle>
         </DialogHeader>
-        <IncidentForm onSubmit={onSubmit} />
+        <IncidentForm onSubmit={handleSubmit} />
         <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>

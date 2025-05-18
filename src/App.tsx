@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import Index from "./pages/Index";
-import Incidents from "./pages/Incidents";
+import Incidents from "./pages/incidents/IncidentsPage";
 import Cameras from "./pages/Cameras";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
