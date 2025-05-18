@@ -1,73 +1,62 @@
-# Welcome to your Lovable project
+# نظام إدارة الأمن | Security Management System
 
-## Project info
+نظام متكامل لإدارة الأمن والمراقبة باللغة العربية
 
-**URL**: https://lovable.dev/projects/2e82871b-4e37-4adf-9e26-259d88ae2415
+## المميزات | Features
 
-## How can I edit this code?
+- ✨ واجهة مستخدم عربية حديثة
+- 🔐 نظام صلاحيات متعدد المستويات
+- 👥 إدارة المستخدمين
+- 📊 التقارير والإحصائيات
+- 📁 استيراد وتصدير البيانات
+- 🎨 تصميم متجاوب مع جميع الأجهزة
 
-There are several ways of editing your application.
+## التقنيات المستخدمة | Technologies
 
-**Use Lovable**
+- React
+- TypeScript
+- Tailwind CSS
+- Vite
+- Shadcn UI
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/2e82871b-4e37-4adf-9e26-259d88ae2415) and start prompting.
+## المتطلبات | Requirements
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js (version 16 or higher)
+- npm or yarn
 
-**Use your preferred IDE**
+## التثبيت | Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```bash
+# تثبيت الاعتماديات
+npm install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# تشغيل بيئة التطوير
 npm run dev
+
+# بناء المشروع
+npm run build
 ```
 
-**Edit a file directly in GitHub**
+## الأدوار | Roles
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- 👑 أدمن (Admin)
+- 👔 مدير (Manager)
+- 🎥 مشغل كاميرات (Camera Operator)
 
-**Use GitHub Codespaces**
+## المساهمة | Contributing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+نرحب بمساهماتكم! يرجى قراءة [دليل المساهمة](CONTRIBUTING.md) للمزيد من المعلومات.
 
-## What technologies are used for this project?
+## الترخيص | License
 
-This project is built with:
+[MIT License](LICENSE)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## الدعم | Support
 
-## How can I deploy this project?
+للمساعدة والدعم الفني، يرجى التواصل:
+- 📞 Ahmed Hussein: +201552962516
+- 📧 فتح issue جديد في هذا المستودع
 
-Simply open [Lovable](https://lovable.dev/projects/2e82871b-4e37-4adf-9e26-259d88ae2415) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Made with ❤️ by Ahmed Hussein © 2024

@@ -1,91 +1,130 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from "sonner";
 
-export interface Notification {
+type NotificationType = 'incident' | 'status' | 'comment' | 'alert';
+
+interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'incident' | 'status' | 'comment' | 'system';
+  type: NotificationType;
   relatedId?: string;
+  sender: string;
   timestamp: string;
   read: boolean;
-  sender: string;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
-  markAsRead: (id: string) => void;
-  clearNotification: (id: string) => void;
   unreadCount: number;
+  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
+  removeNotification: (id: string) => void;
+  clearNotifications: () => void;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error("useNotifications must be used within a NotificationProvider");
+// بيانات تجريبية للإشعارات
+const mockNotifications: Notification[] = [
+  {
+    id: '1',
+    title: 'بلاغ جديد',
+    message: 'تم إضافة بلاغ جديد في المنطقة الشمالية',
+    type: 'incident',
+    relatedId: '123',
+    sender: 'أحمد محمد',
+    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // قبل 30 دقيقة
+    read: false
+  },
+  {
+    id: '2',
+    title: 'تحديث حالة',
+    message: 'تم تحديث حالة البلاغ #456',
+    type: 'status',
+    relatedId: '456',
+    sender: 'سارة خالد',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // قبل ساعتين
+    read: false
+  },
+  {
+    id: '3',
+    title: 'تعليق جديد',
+    message: 'تم إضافة تعليق جديد على البلاغ #789',
+    type: 'comment',
+    relatedId: '789',
+    sender: 'محمد علي',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // قبل يوم
+    read: true
   }
-  return context;
-};
+];
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>(() => {
-    const saved = localStorage.getItem('notifications');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
+    // تحديث عدد الإشعارات غير المقروءة
+    const count = notifications.filter(n => !n.read).length;
+    setUnreadCount(count);
   }, [notifications]);
 
   const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
-    const newNotification = {
+    const newNotification: Notification = {
       ...notification,
-      id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `notification-${Date.now()}`,
       timestamp: new Date().toISOString(),
       read: false
     };
-    
+
     setNotifications(prev => [newNotification, ...prev]);
-    
-    // Show toast notification
-    toast(notification.title, {
-      description: notification.message,
-      action: {
-        label: "عرض",
-        onClick: () => {
-          if (notification.relatedId && notification.type === 'incident') {
-            window.location.href = `/incidents/${notification.relatedId}`;
-          }
-        },
-      },
-    });
+  };
+
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  };
+
+  const clearNotifications = () => {
+    setNotifications([]);
   };
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === id
+          ? { ...notification, read: true }
+          : notification
+      )
     );
   };
 
-  const clearNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const markAllAsRead = () => {
+    setNotifications(prev =>
+      prev.map(notification => ({ ...notification, read: true }))
+    );
   };
 
   return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      addNotification, 
-      markAsRead, 
-      clearNotification,
-      unreadCount
-    }}>
+    <NotificationContext.Provider
+      value={{
+        notifications,
+        unreadCount,
+        addNotification,
+        removeNotification,
+        clearNotifications,
+        markAsRead,
+        markAllAsRead
+      }}
+    >
       {children}
     </NotificationContext.Provider>
   );
+};
+
+export const useNotifications = () => {
+  const context = useContext(NotificationContext);
+  if (context === undefined) {
+    throw new Error('useNotifications must be used within a NotificationProvider');
+  }
+  return context;
 };

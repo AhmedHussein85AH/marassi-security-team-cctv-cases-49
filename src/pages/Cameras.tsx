@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Card, 
@@ -35,7 +34,7 @@ const Cameras = () => {
 
   return (
     <SidebarProvider>
-      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950">
+      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950" dir="rtl">
         <MainSidebar activeItem="cameras" />
         <SidebarInset className="overflow-auto">
           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
@@ -43,7 +42,7 @@ const Cameras = () => {
             <div className="flex flex-1 items-center gap-4 md:gap-8">
               <Input 
                 placeholder="البحث عن الكاميرات..." 
-                className="h-9 md:w-[200px] lg:w-[300px]"
+                className="h-9 md:w-[200px] lg:w-[300px] text-right"
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -64,13 +63,13 @@ const Cameras = () => {
                     <div className="flex justify-between items-center">
                       <CardTitle className="text-lg">{camera.name}</CardTitle>
                       <div className="flex items-center">
-                        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                        <span className={`inline-block w-2 h-2 rounded-full ml-2 ${
                           camera.status === "متصل" ? "bg-green-500" : "bg-red-500"
                         }`}></span>
                         <span className="text-sm text-muted-foreground">{camera.status}</span>
                       </div>
                     </div>
-                    <CardDescription>{camera.location}</CardDescription>
+                    <CardDescription className="text-right">{camera.location}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="bg-slate-200 dark:bg-slate-800 aspect-video rounded-md flex items-center justify-center">
@@ -80,14 +79,14 @@ const Cameras = () => {
                             <Camera className="w-12 h-12 text-slate-400" />
                           </div>
                           {camera.alerts > 0 && (
-                            <div className="absolute top-2 right-2 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs flex items-center">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
+                            <div className="absolute top-2 left-2 bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs flex items-center">
+                              <AlertTriangle className="w-3 h-3 ml-1" />
                               <span>{camera.alerts} تنبيهات</span>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-slate-400">الكاميرا غير متصلة</div>
+                        <div className="text-slate-400 text-right">الكاميرا غير متصلة</div>
                       )}
                     </div>
                   </CardContent>

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Shield, 
@@ -16,11 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
+import { Link } from "react-router-dom";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 const Index = () => {
   return (
     <SidebarProvider>
-      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950">
+      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950" dir="rtl">
         <MainSidebar activeItem="dashboard" />
         
         <SidebarInset className="overflow-auto">
@@ -29,14 +30,11 @@ const Index = () => {
             <div className="flex flex-1 items-center gap-4 md:gap-8">
               <Input 
                 placeholder="بحث..." 
-                className="h-9 md:w-[200px] lg:w-[300px]"
+                className="h-9 md:w-[200px] lg:w-[300px] text-right"
                 type="search" 
               />
-              <div className="ml-auto flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500"></span>
-                </Button>
+              <div className="mr-auto flex items-center gap-2">
+                <NotificationDropdown />
               </div>
             </div>
           </header>
@@ -107,7 +105,7 @@ const Index = () => {
                           <p className="text-sm font-medium">بلاغ سرقة #{i}</p>
                           <p className="text-xs text-muted-foreground">فيلا رقم {i * 10}</p>
                         </div>
-                        <div className="ml-auto text-xs text-muted-foreground">
+                        <div className="mr-auto text-xs text-muted-foreground">
                           قبل {i} ساعات
                         </div>
                       </div>
@@ -115,8 +113,8 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="flex items-center border-t p-4">
-                  <Button variant="ghost" size="sm" className="ml-auto">
-                    عرض الكل
+                  <Button variant="ghost" size="sm" className="mr-auto" asChild>
+                    <Link to="/incidents">عرض الكل</Link>
                   </Button>
                 </div>
               </Card>
@@ -134,7 +132,7 @@ const Index = () => {
                           <p className="text-sm font-medium">كاميرا {i}</p>
                           <p className="text-xs text-muted-foreground">تم اكتشاف حركة</p>
                         </div>
-                        <div className="ml-auto text-xs text-muted-foreground">
+                        <div className="mr-auto text-xs text-muted-foreground">
                           قبل {i * 10} دقائق
                         </div>
                       </div>
@@ -142,8 +140,8 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="flex items-center border-t p-4">
-                  <Button variant="ghost" size="sm" className="ml-auto">
-                    عرض الكل
+                  <Button variant="ghost" size="sm" className="mr-auto" asChild>
+                    <Link to="/cameras">عرض الكل</Link>
                   </Button>
                 </div>
               </Card>
@@ -154,23 +152,23 @@ const Index = () => {
                   <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center">
-                          <User className="h-5 w-5 text-slate-600" />
+                        <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                          <User className="h-5 w-5 text-gray-600" />
                         </div>
                         <div>
                           <p className="text-sm font-medium">مستخدم {i}</p>
                           <p className="text-xs text-muted-foreground">تسجيل دخول ناجح</p>
                         </div>
-                        <div className="ml-auto text-xs text-muted-foreground">
-                          {new Date().toLocaleTimeString()}
+                        <div className="mr-auto text-xs text-muted-foreground">
+                          قبل {i * 10} دقائق
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="flex items-center border-t p-4">
-                  <Button variant="ghost" size="sm" className="ml-auto">
-                    عرض الكل
+                  <Button variant="ghost" size="sm" className="mr-auto" asChild>
+                    <Link to="/users">عرض الكل</Link>
                   </Button>
                 </div>
               </Card>

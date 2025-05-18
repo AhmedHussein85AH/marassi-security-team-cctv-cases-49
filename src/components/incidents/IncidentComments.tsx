@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { MessageSquare, Send } from "lucide-react";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { format, isValid, parseISO } from 'date-fns';
 
 interface Comment {
   id: string;
@@ -31,10 +31,31 @@ const IncidentComments: React.FC<IncidentCommentsProps> = ({
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
 
+  const formatTimestamp = (timestamp: string) => {
+    try {
+      // First try to parse as ISO date
+      const date = parseISO(timestamp);
+      if (isValid(date)) {
+        return format(date, 'PPp', { locale: ar });
+      }
+      
+      // If not ISO, try to create date from timestamp
+      const dateFromTimestamp = new Date(timestamp);
+      if (isValid(dateFromTimestamp)) {
+        return format(dateFromTimestamp, 'PPp', { locale: ar });
+      }
+      
+      // If all fails, return the original timestamp
+      return timestamp;
+    } catch (error) {
+      return timestamp;
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
-      onAddComment(newComment);
+      onAddComment(newComment.trim());
       setNewComment("");
       toast({
         title: "تم إضافة تعليق",
@@ -55,52 +76,33 @@ const IncidentComments: React.FC<IncidentCommentsProps> = ({
     <div className="space-y-4">
       <h3 className="text-lg font-medium">التعليقات</h3>
 
-      <div className="border rounded-md p-4 space-y-4 max-h-[400px] overflow-y-auto">
-        {comments.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 flex flex-col items-center">
-            <MessageSquare className="h-12 w-12 mb-2 opacity-20" />
-            <p>لا توجد تعليقات بعد</p>
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 pb-4 border-b last:border-0">
-              <Avatar className="h-9 w-9">
-                <AvatarFallback>{getInitials(comment.userName)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="font-medium">{comment.userName}</span>
-                    <span className="text-sm text-gray-500 mr-2">
-                      ({comment.userRole})
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {formatDistanceToNow(new Date(comment.timestamp), {
-                      addSuffix: true,
-                      locale: ar,
-                    })}
-                  </span>
-                </div>
-                <p className="text-sm mt-1">{comment.text}</p>
+      <div className="space-y-4">
+        {comments.map((comment) => (
+          <div key={comment.id} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="font-medium">{comment.userName}</p>
+                <p className="text-sm text-gray-500">{comment.userRole}</p>
               </div>
+              <time className="text-sm text-gray-500">
+                {formatTimestamp(comment.timestamp)}
+              </time>
             </div>
-          ))
-        )}
+            <p className="text-gray-700 dark:text-gray-300">{comment.text}</p>
+          </div>
+        ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex items-end gap-2">
-        <div className="flex-1">
-          <Textarea
-            placeholder="أضف تعليق..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            className="resize-none min-h-[80px]"
-          />
-        </div>
-        <Button type="submit" className="flex items-center gap-1">
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <Textarea
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="اكتب تعليقك هنا..."
+          className="min-h-[100px]"
+        />
+        <Button type="submit" className="gap-2">
           <Send className="h-4 w-4" />
-          <span>إرسال</span>
+          إرسال التعليق
         </Button>
       </form>
     </div>

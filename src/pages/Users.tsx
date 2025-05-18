@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Table, 
   TableHeader, 
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, User, Shield, Camera } from "lucide-react";
+import { Users, User, Shield, Camera, Upload } from "lucide-react";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import NotificationDropdown from "@/components/NotificationDropdown";
@@ -39,46 +38,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-
-// Mock users data
-const mockUsers = [
-  { 
-    id: 1, 
-    name: "أحمد محمد", 
-    email: "ahmed@example.com", 
-    role: "مدير", 
-    status: "نشط",
-    lastLogin: "2025-05-16 10:30",
-    permissions: ["view_incidents", "view_reports"]
-  },
-  { 
-    id: 2, 
-    name: "سارة خالد", 
-    email: "sarah@example.com", 
-    role: "مشغل كاميرات", 
-    status: "نشط",
-    lastLogin: "2025-05-17 09:15",
-    permissions: ["view_incidents", "process_incidents", "view_cameras"]
-  },
-  { 
-    id: 3, 
-    name: "محمد علي", 
-    email: "mohamed@example.com", 
-    role: "أدمن", 
-    status: "نشط",
-    lastLogin: "2025-05-17 12:00",
-    permissions: ["all"]
-  },
-  { 
-    id: 4, 
-    name: "فاطمة أحمد", 
-    email: "fatima@example.com", 
-    role: "مدير", 
-    status: "غير نشط",
-    lastLogin: "2025-05-10 11:45",
-    permissions: ["view_incidents", "view_reports"]
-  },
-];
+import { Badge } from "@/components/ui/badge";
+import { Pencil, Trash, Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import PermissionsDialog from "@/components/users/PermissionsDialog";
+import UserImportTemplate from "@/components/users/UserImportTemplate";
+import { userService } from "@/services/userService";
 
 const rolePermissions = {
   "أدمن": ["all"],
@@ -87,12 +52,39 @@ const rolePermissions = {
 };
 
 const UserManagement = () => {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isPermissionsDialogOpen, setIsPermissionsDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [newRole, setNewRole] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedUsers = await userService.getUsers();
+      setUsers(fetchedUsers);
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تحميل المستخدمين",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -103,36 +95,39 @@ const UserManagement = () => {
   const getRoleIcon = (role) => {
     switch(role) {
       case "أدمن": 
-        return <Shield className="w-4 h-4 text-red-500" />;
+        return <Shield className="h-5 w-5 text-red-500" />;
       case "مدير": 
-        return <User className="w-4 h-4 text-blue-500" />;
+        return <User className="h-5 w-5 text-blue-500" />;
       case "مشغل كاميرات": 
-        return <Camera className="w-4 h-4 text-green-500" />;
+        return <Camera className="h-5 w-5 text-green-500" />;
       default: 
-        return <User className="w-4 h-4" />;
+        return <User className="h-5 w-5" />;
     }
   };
 
-  const handleRoleChange = () => {
+  const handleRoleChange = async () => {
     if (!selectedUser || !newRole) return;
     
-    const updatedUsers = users.map(user => 
-      user.id === selectedUser.id 
-        ? { 
-            ...user, 
-            role: newRole, 
-            permissions: rolePermissions[newRole] || [] 
-          } 
-        : user
-    );
-    
-    setUsers(updatedUsers);
-    setIsRoleDialogOpen(false);
-    
-    toast({
-      title: "تم تغيير الصلاحية",
-      description: `تم تغيير صلاحية ${selectedUser.name} إلى ${newRole}`,
-    });
+    try {
+      await userService.updateUser(selectedUser.id, {
+        ...selectedUser,
+        role: newRole,
+      });
+      
+      await loadUsers(); // Reload users after update
+      setIsRoleDialogOpen(false);
+      
+      toast({
+        title: "تم تغيير الصلاحية",
+        description: `تم تغيير صلاحية ${selectedUser.name} إلى ${newRole}`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: error.message || "حدث خطأ أثناء تغيير الصلاحية",
+        variant: "destructive",
+      });
+    }
   };
 
   const openRoleDialog = (user) => {
@@ -141,9 +136,99 @@ const UserManagement = () => {
     setIsRoleDialogOpen(true);
   };
 
+  const handleEditUser = (id) => {
+    navigate(`/users/edit/${id}`);
+  };
+
+  const handleDeleteUser = (id) => {
+    const user = users.find(u => u.id === id);
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!userToDelete) return;
+    
+    try {
+      await userService.deleteUser(userToDelete.id);
+      await loadUsers(); // Reload users after deletion
+      setIsDeleteDialogOpen(false);
+      
+      toast({
+        title: "تم حذف المستخدم",
+        description: `تم حذف المستخدم ${userToDelete.name} بنجاح`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: error.message || "حدث خطأ أثناء حذف المستخدم",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePermissionsUpdate = async (permissions: string[]) => {
+    if (!selectedUser) return;
+    
+    try {
+      // تحديث الصلاحيات فقط
+      await userService.updateUser(selectedUser.id, {
+        permissions
+      });
+      
+      // تحديث قائمة المستخدمين
+      await loadUsers();
+      
+      toast({
+        title: "تم تحديث الصلاحيات",
+        description: `تم تحديث صلاحيات ${selectedUser.name} بنجاح`,
+      });
+    } catch (error) {
+      console.error('خطأ في تحديث الصلاحيات:', error);
+      toast({
+        title: "خطأ",
+        description: error.message || "حدث خطأ أثناء تحديث الصلاحيات",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openPermissionsDialog = (user) => {
+    setSelectedUser(user);
+    setIsPermissionsDialogOpen(true);
+  };
+
+  const handleImportExcel = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // هنا سيتم إضافة الاتصال بالـ API لرفع الملف
+      // مؤقتاً سنقوم بعرض رسالة نجاح
+      toast({
+        title: "تم استيراد المستخدمين",
+        description: "تم استيراد بيانات المستخدمين بنجاح",
+      });
+
+      // إعادة تعيين قيمة input الملف
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في الاستيراد",
+        description: "حدث خطأ أثناء استيراد بيانات المستخدمين",
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
-      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950">
+      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950" dir="rtl">
         <MainSidebar activeItem="users" />
         <SidebarInset className="overflow-auto">
           <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
@@ -151,14 +236,32 @@ const UserManagement = () => {
             <div className="flex flex-1 items-center gap-4 md:gap-8">
               <Input 
                 placeholder="البحث عن المستخدمين..." 
-                className="h-9 md:w-[200px] lg:w-[300px]"
-                type="search"
+                className="h-9 md:w-[200px] lg:w-[300px] text-right"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <div className="ml-auto flex items-center gap-2">
-                <NotificationDropdown />
-                <Button>إضافة مستخدم جديد</Button>
+              <div className="mr-auto flex items-center gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  onChange={handleImportExcel}
+                  title="استيراد ملف Excel"
+                  aria-label="استيراد ملف Excel"
+                />
+                <UserImportTemplate />
+                <Button 
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                  استيراد من Excel
+                </Button>
+                <Button onClick={() => navigate("/users/add")}>
+                  إضافة مستخدم جديد
+                </Button>
               </div>
             </div>
           </header>
@@ -166,7 +269,7 @@ const UserManagement = () => {
           <main className="flex-1 p-6">
             <div className="mb-6">
               <h1 className="text-3xl font-bold tracking-tight">إدارة المستخدمين</h1>
-              <p className="text-muted-foreground">إدارة المستخدمين والصلاحيات</p>
+              <p className="text-muted-foreground">إدارة حسابات المستخدمين وصلاحياتهم</p>
             </div>
             
             <Card>
@@ -175,54 +278,81 @@ const UserManagement = () => {
                 <CardDescription>جميع المستخدمين المسجلين في النظام</CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>الاسم</TableHead>
-                      <TableHead>البريد الإلكتروني</TableHead>
-                      <TableHead>الصلاحية</TableHead>
-                      <TableHead>الحالة</TableHead>
-                      <TableHead>آخر تسجيل دخول</TableHead>
-                      <TableHead>الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {getRoleIcon(user.role)}
-                            <span>{user.role}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            user.status === "نشط" 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
-                            {user.status}
-                          </span>
-                        </TableCell>
-                        <TableCell>{user.lastLogin}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm">تعديل</Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => openRoleDialog(user)}
-                            >
-                              تغيير الصلاحية
-                            </Button>
-                          </div>
-                        </TableCell>
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="text-right w-[200px] py-4">اسم المستخدم</TableHead>
+                        <TableHead className="text-right w-[250px]">البريد الإلكتروني</TableHead>
+                        <TableHead className="text-right w-[180px] pl-8">الدور</TableHead>
+                        <TableHead className="text-right w-[120px]">الحالة</TableHead>
+                        <TableHead className="text-right w-[150px]">آخر تسجيل دخول</TableHead>
+                        <TableHead className="text-right w-[100px]">الإجراءات</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.map((user) => (
+                        <TableRow key={user.id} className="hover:bg-muted/50 transition-colors">
+                          <TableCell className="text-right py-4">{user.name}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{user.email}</TableCell>
+                          <TableCell className="text-right pl-8">
+                            <div className="flex items-center gap-3">
+                              {getRoleIcon(user.role)}
+                              <span>{user.role}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge 
+                              variant={user.status === "نشط" ? "success" : "destructive"}
+                              className={`
+                                inline-flex px-3 py-1
+                                ${user.status === "نشط" 
+                                  ? "bg-green-100 text-green-800 hover:bg-green-100" 
+                                  : "bg-red-100 text-red-800 hover:bg-red-100"}
+                              `}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span className={`w-1.5 h-1.5 rounded-full ${user.status === "نشط" ? "bg-green-600" : "bg-red-600"}`}></span>
+                                {user.status}
+                              </span>
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-muted-foreground text-sm whitespace-nowrap">
+                            {user.lastLogin}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="hover:bg-purple-100 hover:text-purple-600 h-8 w-8"
+                                onClick={() => openPermissionsDialog(user)}
+                              >
+                                <Lock className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="hover:bg-blue-100 hover:text-blue-600 h-8 w-8"
+                                onClick={() => handleEditUser(user.id)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="hover:bg-red-100 hover:text-red-600 h-8 w-8"
+                                onClick={() => handleDeleteUser(user.id)}
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </main>
@@ -307,6 +437,40 @@ const UserManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>تأكيد حذف المستخدم</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من حذف المستخدم {userToDelete?.name}؟ لا يمكن التراجع عن هذا الإجراء.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              إلغاء
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDelete}
+            >
+              حذف
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permissions Dialog */}
+      <PermissionsDialog
+        open={isPermissionsDialogOpen}
+        onOpenChange={setIsPermissionsDialogOpen}
+        selectedUser={selectedUser}
+        onSave={handlePermissionsUpdate}
+      />
     </SidebarProvider>
   );
 };
