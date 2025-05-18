@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Table, 
@@ -49,20 +50,16 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import MainSidebar from "@/components/MainSidebar";
 import NotificationDropdown from "@/components/NotificationDropdown";
 import { useNotifications } from "@/contexts/NotificationContext";
+import { useAuth } from "@/contexts/AuthContext";
 import useIncidentStore from "@/stores/incidentStore";
 import type { Incident } from "@/stores/incidentStore";
-
-// Mock current user
-const currentUser = {
-  name: "أحمد محمد",
-  role: "أدمن"
-};
 
 const Incidents = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { addNotification } = useNotifications();
+  const { addRoleBasedNotification } = useNotifications();
+  const { user } = useAuth();
   const { incidents, addIncident } = useIncidentStore();
 
   const filteredIncidents = incidents.filter(incident => 
@@ -95,13 +92,29 @@ const Incidents = () => {
       description: `تم إضافة البلاغ رقم ${newIncident.id} بنجاح`,
     });
 
-    addNotification({
-      title: "بلاغ جديد",
-      message: `تم إضافة بلاغ جديد من نوع ${newIncident.type} في ${newIncident.location}`,
-      type: "incident",
-      relatedId: newIncident.id,
-      sender: currentUser.name
-    });
+    // إرسال إشعار لمشغلي الكاميرات للعمل على البلاغ
+    addRoleBasedNotification(
+      {
+        title: "بلاغ جديد يحتاج إلى معالجة",
+        message: `تم إضافة بلاغ جديد من نوع ${newIncident.type} في ${newIncident.location} ويحتاج إلى معالجة`,
+        type: "incident",
+        relatedId: newIncident.id,
+        sender: user?.name || "النظام"
+      },
+      ["مشغل كاميرات"]
+    );
+
+    // إرسال إشعار للمدير للمعاينة فقط
+    addRoleBasedNotification(
+      {
+        title: "بلاغ جديد للمعاينة",
+        message: `تم إضافة بلاغ جديد من نوع ${newIncident.type} في ${newIncident.location}`,
+        type: "alert",
+        relatedId: newIncident.id,
+        sender: user?.name || "النظام"
+      },
+      ["مدير"]
+    );
   };
 
   const handleViewDetails = (id: string) => {

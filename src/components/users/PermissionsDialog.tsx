@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authService } from "@/services/authService";
 import { User } from "@/types/user";
+import { useToast } from "@/hooks/use-toast";
 
 interface PermissionsDialogProps {
   open: boolean;
@@ -26,14 +28,20 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
   onSave,
 }) => {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [initialPermissions, setInitialPermissions] = useState<string[]>([]);
   const permissionsList = authService.getAllPermissions();
+  const { toast } = useToast();
 
+  // عند تغير المستخدم المحدد، تحديث الصلاحيات المحددة
   useEffect(() => {
     if (selectedUser) {
+      // حفظ الصلاحيات الأولية للمقارنة لاحقاً
+      setInitialPermissions(selectedUser.permissions || []);
       setSelectedPermissions(selectedUser.permissions || []);
     }
   }, [selectedUser]);
 
+  // التعامل مع تغيير حالة الصلاحية
   const handlePermissionChange = (permissionId: string, checked: boolean) => {
     setSelectedPermissions(prev => {
       if (checked) {
@@ -44,6 +52,7 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     });
   };
 
+  // التعامل مع تغيير حالة المجموعة
   const handleGroupChange = (groupPermissions: string[], checked: boolean) => {
     setSelectedPermissions(prev => {
       if (checked) {
@@ -54,19 +63,60 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     });
   };
 
+  // التحقق مما إذا كانت جميع الصلاحيات في المجموعة محددة
   const isGroupChecked = (groupPermissions: string[]) => {
     return groupPermissions.every(p => selectedPermissions.includes(p));
   };
 
+  // التحقق من حالة التحديد الجزئي للمجموعة
   const isGroupIndeterminate = (groupPermissions: string[]) => {
     const checkedCount = groupPermissions.filter(p => selectedPermissions.includes(p)).length;
     return checkedCount > 0 && checkedCount < groupPermissions.length;
   };
 
+  // معالجة حفظ الصلاحيات
   const handleSave = () => {
-    onSave(selectedPermissions);
-    onOpenChange(false);
+    // التحقق من التغييرات
+    const hasChanges = JSON.stringify(initialPermissions.sort()) !== JSON.stringify(selectedPermissions.sort());
+    
+    if (!hasChanges) {
+      toast({
+        description: "لم تتم أي تغييرات في الصلاحيات",
+      });
+      onOpenChange(false);
+      return;
+    }
+    
+    // إضافة صلاحية 'all' إذا تم تحديد جميع الصلاحيات
+    const allPermissions = permissionsList.flatMap(group => group.permissions.map(p => p.id));
+    const userSelectedAll = allPermissions.every(p => selectedPermissions.includes(p));
+    
+    const finalPermissions = userSelectedAll ? ['all'] : selectedPermissions;
+    
+    onSave(finalPermissions);
   };
+
+  // إضافة دعم للصلاحية "all" عند عرض الحالة
+  const getAllPermissionsIds = () => {
+    return permissionsList.flatMap(group => group.permissions.map(p => p.id));
+  };
+
+  // إظهار جميع الصلاحيات مختارة إذا كان المستخدم لديه صلاحية "all"
+  const displayPermissions = selectedUser?.permissions?.includes('all') ? 
+    getAllPermissionsIds() : 
+    selectedPermissions;
+
+  // إضافة تبديل لجميع الصلاحيات
+  const handleToggleAllPermissions = (checked: boolean) => {
+    if (checked) {
+      setSelectedPermissions(getAllPermissionsIds());
+    } else {
+      setSelectedPermissions([]);
+    }
+  };
+
+  const isAllPermissionsChecked = getAllPermissionsIds().every(p => selectedPermissions.includes(p));
+  const isAllPermissionsIndeterminate = selectedPermissions.length > 0 && selectedPermissions.length < getAllPermissionsIds().length;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,6 +129,21 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
         </DialogHeader>
 
         <div className="py-4 space-y-6">
+          <div className="flex items-center space-x-2 bg-muted p-3 rounded-md">
+            <Checkbox
+              id="toggle-all"
+              checked={isAllPermissionsChecked}
+              onCheckedChange={handleToggleAllPermissions}
+              indeterminate={isAllPermissionsIndeterminate}
+            />
+            <label
+              htmlFor="toggle-all"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              تحديد جميع الصلاحيات
+            </label>
+          </div>
+
           {permissionsList.map((group) => (
             <div key={group.group} className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -106,7 +171,7 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
                   <div key={permission.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={permission.id}
-                      checked={selectedPermissions.includes(permission.id)}
+                      checked={displayPermissions?.includes(permission.id)}
                       onCheckedChange={(checked) => 
                         handlePermissionChange(permission.id, checked as boolean)
                       }
@@ -142,4 +207,4 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
   );
 };
 
-export default PermissionsDialog; 
+export default PermissionsDialog;

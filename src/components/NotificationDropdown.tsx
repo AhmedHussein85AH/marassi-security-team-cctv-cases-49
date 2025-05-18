@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Sheet,
@@ -29,6 +30,48 @@ const NotificationDropdown = () => {
     markAsRead(notification.id);
     if (notification.type === 'incident' && notification.relatedId) {
       navigate(`/incidents/${notification.relatedId}`);
+    }
+  };
+
+  // الحصول على الأيقونة والألوان حسب نوع الإشعار
+  const getNotificationStyles = (type) => {
+    switch(type) {
+      case 'incident':
+        return { 
+          bgColor: 'bg-red-100', 
+          textColor: 'text-red-800',
+          icon: <div className="w-2 h-2 rounded-full bg-red-500 mr-1" />
+        };
+      case 'status':
+        return { 
+          bgColor: 'bg-blue-100', 
+          textColor: 'text-blue-800',
+          icon: <div className="w-2 h-2 rounded-full bg-blue-500 mr-1" />
+        };
+      case 'comment':
+        return { 
+          bgColor: 'bg-green-100', 
+          textColor: 'text-green-800',
+          icon: <div className="w-2 h-2 rounded-full bg-green-500 mr-1" />
+        };
+      case 'alert':
+        return { 
+          bgColor: 'bg-orange-100', 
+          textColor: 'text-orange-800',
+          icon: <div className="w-2 h-2 rounded-full bg-orange-500 mr-1" />
+        };
+      case 'user':
+        return { 
+          bgColor: 'bg-purple-100', 
+          textColor: 'text-purple-800',
+          icon: <div className="w-2 h-2 rounded-full bg-purple-500 mr-1" />
+        };
+      default:
+        return { 
+          bgColor: 'bg-gray-100', 
+          textColor: 'text-gray-800',
+          icon: <div className="w-2 h-2 rounded-full bg-gray-500 mr-1" />
+        };
     }
   };
 
@@ -84,40 +127,44 @@ const NotificationDropdown = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 rounded-lg cursor-pointer transition-colors ${
-                    notification.read 
-                      ? "bg-muted/50 hover:bg-muted" 
-                      : "bg-primary/5 hover:bg-primary/10"
-                  }`}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className="flex justify-between items-start">
-                    <span className={`font-semibold ${!notification.read && "text-primary"}`}>
-                      {notification.title}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(notification.timestamp), {
-                        addSuffix: true,
-                        locale: ar
-                      })}
-                    </span>
+              {notifications.map((notification) => {
+                const styles = getNotificationStyles(notification.type);
+                return (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg cursor-pointer transition-colors ${
+                      notification.read 
+                        ? "bg-muted/50 hover:bg-muted" 
+                        : `${styles.bgColor} hover:bg-opacity-90`
+                    }`}
+                    onClick={() => handleNotificationClick(notification)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className={`font-semibold flex items-center ${!notification.read && styles.textColor}`}>
+                        {styles.icon}
+                        {notification.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(notification.timestamp), {
+                          addSuffix: true,
+                          locale: ar
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {notification.message}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                      <span>بواسطة: {notification.sender}</span>
+                      {!notification.read && (
+                        <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
+                          جديد
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {notification.message}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                    <span>بواسطة: {notification.sender}</span>
-                    {!notification.read && (
-                      <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
-                        جديد
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -1,3 +1,4 @@
+
 import { User } from '@/types/user';
 
 export const authService = {
@@ -19,6 +20,11 @@ export const authService = {
     if (user.permissions.includes('all')) return true;
     
     return permissions.some(permission => user.permissions.includes(permission));
+  },
+
+  // التحقق ما إذا كان المستخدم مطابق للمستخدم الحالي
+  isSameUser: (loggedInUser: User, userToCheck: User): boolean => {
+    return loggedInUser.id === userToCheck.id;
   },
 
   // الحصول على قائمة الصلاحيات حسب الدور
@@ -126,4 +132,4 @@ export const authService = {
       ]
     }
   ]
-}; 
+};

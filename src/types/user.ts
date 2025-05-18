@@ -1,3 +1,4 @@
+
 export interface User {
   id: number;
   name: string;
@@ -5,4 +6,10 @@ export interface User {
   password?: string;
   role: string;
   permissions: string[];
-} 
+  department?: string;
+  phoneNumber?: string;
+  status?: string;
+  lastLogin?: string;
+  avatarUrl?: string;
+  createdAt?: string;
+}

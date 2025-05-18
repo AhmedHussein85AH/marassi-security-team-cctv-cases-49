@@ -1,20 +1,15 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  permissions: string[];
-}
+import { useToast } from '@/hooks/use-toast';
+import { User } from '@/types/user';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  updateUserProfile: (userData: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +22,12 @@ const mockUsers = [
     email: "ahmed@example.com",
     password: "123456",
     role: "مدير", 
-    permissions: ["view_dashboard", "view_incidents", "view_reports"]
+    permissions: ["view_dashboard", "view_incidents", "view_reports", "manage_incidents"],
+    department: "إدارة العمليات",
+    phoneNumber: "0500000001",
+    status: "نشط",
+    lastLogin: "2025-05-17 10:23",
+    createdAt: "2025-01-15"
   },
   { 
     id: 2, 
@@ -35,7 +35,12 @@ const mockUsers = [
     email: "sarah@example.com",
     password: "123456",
     role: "مشغل كاميرات", 
-    permissions: ["view_incidents", "view_cameras"]
+    permissions: ["view_incidents", "view_cameras", "process_incidents"],
+    department: "غرفة المراقبة",
+    phoneNumber: "0500000002",
+    status: "نشط",
+    lastLogin: "2025-05-17 14:45",
+    createdAt: "2025-02-20"
   },
   { 
     id: 3, 
@@ -43,7 +48,12 @@ const mockUsers = [
     email: "mohamed@example.com",
     password: "123456",
     role: "أدمن", 
-    permissions: ["all"]
+    permissions: ["all"],
+    department: "تقنية المعلومات",
+    phoneNumber: "0500000003",
+    status: "نشط",
+    lastLogin: "2025-05-18 09:05",
+    createdAt: "2024-12-01"
   }
 ];
 
@@ -72,8 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (foundUser) {
         const { password: _, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        
+        // تحديث وقت آخر تسجيل دخول
+        const updatedUser = {
+          ...userWithoutPassword,
+          lastLogin: new Date().toISOString().replace('T', ' ').substring(0, 16)
+        };
+        
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
         
         toast({
           title: "تم تسجيل الدخول بنجاح",
@@ -105,8 +122,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     navigate('/login');
   };
 
+  const updateUserProfile = async (userData: Partial<User>) => {
+    try {
+      if (!user) throw new Error('المستخدم غير مسجل الدخول');
+      
+      // تحديث بيانات المستخدم
+      const updatedUser = { ...user, ...userData };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      toast({
+        title: "تم تحديث البيانات",
+        description: "تم تحديث بيانات المستخدم بنجاح",
+      });
+      
+      return Promise.resolve();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "خطأ في تحديث البيانات",
+        description: error instanceof Error ? error.message : "حدث خطأ غير متوقع",
+      });
+      return Promise.reject(error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
@@ -118,4 +160,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}
