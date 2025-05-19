@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
@@ -30,7 +31,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import MainSidebar from "@/components/MainSidebar";
 import { useNotifications } from "@/contexts/NotificationContext";
 import IncidentComments from "@/components/incidents/IncidentComments";
-import useIncidentStore from "@/stores/incidentStore";
+import useIncidentStore, { Comment as StoreComment } from "@/stores/incidentStore";
 
 // Mock current user
 const currentUser = {
@@ -85,7 +86,7 @@ const IncidentDetail = () => {
     addNotification({
       title: `تم تحديث ملاحظات البلاغ #${id}`,
       message: "تم تحديث ملاحظات المشغل",
-      type: "update",
+      type: "status", // Changed from 'update' to 'status' which is a valid NotificationType
       relatedId: id,
       sender: currentUser.name
     });
@@ -120,7 +121,9 @@ const IncidentDetail = () => {
   const handleAddComment = (text: string) => {
     if (!incident) return;
 
-    const newComment = {
+    // Create a new comment with the required id property
+    const newComment: StoreComment = {
+      id: `com-${Date.now()}`, // Generate a unique ID
       text,
       user: currentUser.name,
       timestamp: new Date().toISOString()
@@ -167,6 +170,15 @@ const IncidentDetail = () => {
       </div>
     );
   }
+
+  // Transform the comments array to match the expected format for IncidentComments component
+  const transformedComments = incident.comments.map(comment => ({
+    id: comment.id,
+    text: comment.text,
+    userName: comment.user, // Map 'user' to 'userName'
+    userRole: currentUser.role, // Use current user's role as a fallback
+    timestamp: comment.timestamp
+  }));
 
   return (
     <SidebarProvider>
@@ -305,7 +317,8 @@ const IncidentDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <IncidentComments 
-                    comments={incident.comments || []} 
+                    incidentId={incident.id}
+                    comments={transformedComments}
                     onAddComment={handleAddComment}
                   />
                 </CardContent>
