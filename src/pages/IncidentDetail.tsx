@@ -3,7 +3,7 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import IncidentComments from "@/components/incidents/IncidentComments";
 import IncidentInfo from "@/components/incidents/IncidentInfo";
