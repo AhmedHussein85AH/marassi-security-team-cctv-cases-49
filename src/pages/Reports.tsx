@@ -11,7 +11,7 @@ import { Calendar as CalendarIcon, FileSpreadsheet, AlertTriangle } from 'lucide
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import * as XLSX from 'xlsx';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useIncidentStore from "@/stores/incidentStore";
+import useIncidentStore from "@/stores/incidents";
 
 const Reports = () => {
   const [date, setDate] = useState<Date>();
@@ -357,4 +357,4 @@ const Reports = () => {
   );
 };
 
-export default Reports; 
+export default Reports;

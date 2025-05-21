@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -18,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AlertTriangle, MessageCircle, Clipboard, Trash2 } from "lucide-react";
-import type { Incident } from "@/stores/incidentStore";
+import type { Incident } from "@/types/incident";
 
 interface IncidentTableProps {
   incidents: Incident[];

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import IncidentForm from "@/components/incidents/IncidentForm";
-import type { Incident } from "@/stores/incidentStore";
+import type { Incident } from "@/types/incident";
 
 interface CreateIncidentDialogProps {
   onSubmit: (incidentData: Partial<Incident>) => void;
