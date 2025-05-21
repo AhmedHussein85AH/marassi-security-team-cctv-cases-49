@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/toast";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
 import useIncidentStore from "@/stores/incidents";
@@ -41,8 +41,8 @@ const IncidentsDashboard = () => {
       comments: [],
       operatorNotes: "",
       description: incidentData.description || "",
-      propertyInfo: incidentData.propertyId || "",
-      vehicleInfo: incidentData.vehicleDetails || "",
+      propertyInfo: incidentData.propertyInfo || "",
+      vehicleInfo: incidentData.vehicleInfo || "",
       type: incidentData.type || "",
       location: incidentData.location || "",
       date: incidentData.date || "",
