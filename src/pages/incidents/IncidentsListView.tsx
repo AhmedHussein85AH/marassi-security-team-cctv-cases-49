@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import IncidentTable from "@/components/incidents/IncidentTable";
-import useIncidentStore, { Incident } from "@/stores/incidentStore";
+import useIncidentStore from "@/stores/incidents";
+import { Incident } from "@/types/incident";
 import { useNotifications } from "@/contexts/NotificationContext";
 
 interface IncidentsListViewProps {

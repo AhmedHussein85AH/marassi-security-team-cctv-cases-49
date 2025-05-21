@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import useIncidentStore, { Incident } from "@/stores/incidentStore";
+import useIncidentStore from "@/stores/incidents";
+import { Incident } from "@/types/incident";
 import IncidentHeader from "@/components/incidents/IncidentHeader";
 import IncidentsListView from "@/pages/incidents/IncidentsListView";
 

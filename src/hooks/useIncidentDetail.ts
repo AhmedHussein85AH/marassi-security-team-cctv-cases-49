@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/contexts/NotificationContext";
-import useIncidentStore, { Incident, Comment as StoreComment } from "@/stores/incidentStore";
+import useIncidentStore from "@/stores/incidents";
+import { Incident, Comment as StoreComment } from "@/types/incident";
 
 // Mock current user - this should ideally come from an auth context
 const currentUser = {
