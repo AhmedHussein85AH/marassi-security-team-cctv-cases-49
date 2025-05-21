@@ -4,6 +4,8 @@ import { ArrowLeft, Check, Search, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import CreateIncidentDialog from "@/components/incidents/CreateIncidentDialog";
+import type { Incident } from "@/types/incident";
 
 interface IncidentHeaderProps {
   // For incident detail page
@@ -15,7 +17,7 @@ interface IncidentHeaderProps {
   // For incidents dashboard
   searchTerm?: string;
   onSearchChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNewIncident?: (incidentData: any) => void;
+  onNewIncident?: (incidentData: Partial<Incident>) => void;
 }
 
 const IncidentHeader: React.FC<IncidentHeaderProps> = ({
@@ -82,10 +84,7 @@ const IncidentHeader: React.FC<IncidentHeaderProps> = ({
             </div>
           </div>
           {onNewIncident && (
-            <Button onClick={() => onNewIncident({})}>
-              <Plus className="mr-1 h-4 w-4" />
-              بلاغ جديد
-            </Button>
+            <CreateIncidentDialog onSubmit={onNewIncident} />
           )}
         </div>
       </div>

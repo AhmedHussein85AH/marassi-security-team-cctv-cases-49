@@ -34,7 +34,6 @@ const CreateIncidentDialog: React.FC<CreateIncidentDialogProps> = ({ onSubmit })
           <DialogTitle>إضافة بلاغ جديد</DialogTitle>
         </DialogHeader>
         <IncidentForm onSubmit={handleSubmit} />
-        <DialogFooter></DialogFooter>
       </DialogContent>
     </Dialog>
   );

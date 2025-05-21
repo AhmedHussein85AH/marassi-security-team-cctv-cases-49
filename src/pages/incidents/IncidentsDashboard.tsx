@@ -25,14 +25,24 @@ const IncidentsDashboard = () => {
   );
 
   const handleNewIncident = (incidentData: Partial<Incident>) => {
+    // تأكد من وجود البيانات الضرورية قبل إضافة البلاغ
+    if (!incidentData.type || !incidentData.location || !incidentData.reporter) {
+      toast({
+        title: "خطأ في إضافة البلاغ",
+        description: "يرجى ملء جميع الحقول المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const newIncident: Incident = {
       id: `INC-00${incidents.length + 1}`,
       status: "جديد",
       comments: [],
       operatorNotes: "",
       description: incidentData.description || "",
-      propertyInfo: incidentData.propertyInfo || "",
-      vehicleInfo: incidentData.vehicleInfo || "",
+      propertyInfo: incidentData.propertyId || "",
+      vehicleInfo: incidentData.vehicleDetails || "",
       type: incidentData.type || "",
       location: incidentData.location || "",
       date: incidentData.date || "",
