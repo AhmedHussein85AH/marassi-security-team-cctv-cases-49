@@ -7,8 +7,10 @@ import {
   CardDescription, 
   CardContent 
 } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import IncidentTable from "@/components/incidents/IncidentTable";
-import type { Incident } from "@/stores/incidentStore";
+import useIncidentStore, { Incident } from "@/stores/incidentStore";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 interface IncidentsListViewProps {
   incidents: Incident[];
@@ -16,6 +18,34 @@ interface IncidentsListViewProps {
 }
 
 const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onViewDetails }) => {
+  const { toast } = useToast();
+  const { deleteIncident } = useIncidentStore();
+  const { addNotification } = useNotifications();
+  
+  // Current mock user
+  const currentUser = {
+    name: "أحمد محمد"
+  };
+
+  const handleDeleteIncident = (id: string) => {
+    if (window.confirm("هل أنت متأكد من حذف هذا البلاغ؟")) {
+      deleteIncident(id);
+      
+      toast({
+        title: "تم حذف البلاغ",
+        description: `تم حذف البلاغ رقم ${id} بنجاح`,
+      });
+      
+      addNotification({
+        title: `تم حذف البلاغ #${id}`,
+        message: `تم حذف البلاغ بواسطة ${currentUser.name}`,
+        type: "alert",
+        relatedId: id,
+        sender: currentUser.name
+      });
+    }
+  };
+
   return (
     <main className="flex-1 p-6">
       <div className="mb-6">
@@ -31,7 +61,8 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
         <CardContent>
           <IncidentTable 
             incidents={incidents} 
-            onViewDetails={onViewDetails} 
+            onViewDetails={onViewDetails}
+            onDeleteIncident={handleDeleteIncident}
           />
         </CardContent>
       </Card>

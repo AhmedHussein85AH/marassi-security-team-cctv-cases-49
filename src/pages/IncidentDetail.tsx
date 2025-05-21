@@ -21,9 +21,13 @@ const IncidentDetail = () => {
     incident,
     operatorNotes,
     setOperatorNotes,
+    images,
     handleSaveNotes,
     handleCompleteIncident,
-    handleAddComment
+    handleAddComment,
+    handleAddImage,
+    handleRemoveImage,
+    handleDeleteIncident
   } = useIncidentDetail(id);
 
   if (loading) {
@@ -68,7 +72,8 @@ const IncidentDetail = () => {
           <IncidentHeader 
             incidentId={incident.id} 
             status={incident.status} 
-            onCompleteIncident={handleCompleteIncident} 
+            onCompleteIncident={handleCompleteIncident}
+            onDeleteIncident={handleDeleteIncident}
           />
           
           <main className="flex-1 p-6">
@@ -82,8 +87,11 @@ const IncidentDetail = () => {
               <IncidentDetails incident={incident} />
               <OperatorNotes 
                 notes={operatorNotes} 
+                images={images || []}
                 onNotesChange={setOperatorNotes} 
-                onSaveNotes={handleSaveNotes} 
+                onSaveNotes={handleSaveNotes}
+                onAddImage={handleAddImage}
+                onRemoveImage={handleRemoveImage}
               />
               <div className="card">
                 <IncidentComments 

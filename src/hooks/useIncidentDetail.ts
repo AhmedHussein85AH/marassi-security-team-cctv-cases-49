@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/contexts/NotificationContext";
 import useIncidentStore, { Incident, Comment as StoreComment } from "@/stores/incidentStore";
@@ -12,12 +13,14 @@ const currentUser = {
 
 export const useIncidentDetail = (incidentId: string | undefined) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { addNotification } = useNotifications();
-  const { getIncidentById, updateIncident } = useIncidentStore();
+  const { getIncidentById, updateIncident, deleteIncident, addIncidentImage, removeIncidentImage } = useIncidentStore();
 
   const [loading, setLoading] = useState(true);
   const [incident, setIncident] = useState<Incident | null>(incidentId ? getIncidentById(incidentId) : null);
   const [operatorNotes, setOperatorNotes] = useState(incident?.operatorNotes || "");
+  const [images, setImages] = useState<string[]>(incident?.images || []);
 
   useEffect(() => {
     if (incidentId) {
@@ -27,6 +30,7 @@ export const useIncidentDetail = (incidentId: string | undefined) => {
         if (foundIncident) {
           setIncident(foundIncident);
           setOperatorNotes(foundIncident.operatorNotes || "");
+          setImages(foundIncident.images || []);
         }
       } catch (error) {
         console.error("Error loading incident:", error);
@@ -41,7 +45,8 @@ export const useIncidentDetail = (incidentId: string | undefined) => {
 
     const updatedIncident = {
       ...incident,
-      operatorNotes
+      operatorNotes,
+      images
     };
 
     updateIncident(updatedIncident);
@@ -115,13 +120,67 @@ export const useIncidentDetail = (incidentId: string | undefined) => {
     });
   };
 
+  const handleAddImage = (imageUrl: string) => {
+    if (!incident || !incidentId) return;
+    
+    addIncidentImage(incidentId, imageUrl);
+    setImages(prev => [...prev, imageUrl]);
+    
+    toast({
+      title: "تم إضافة الصورة",
+      description: "تم إضافة الصورة بنجاح للبلاغ",
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    if (!incident || !incidentId) return;
+    
+    removeIncidentImage(incidentId, index);
+    setImages(prev => {
+      const newImages = [...prev];
+      newImages.splice(index, 1);
+      return newImages;
+    });
+    
+    toast({
+      title: "تم حذف الصورة",
+      description: "تم حذف الصورة بنجاح من البلاغ",
+    });
+  };
+
+  const handleDeleteIncident = () => {
+    if (!incident || !incidentId) return;
+    
+    deleteIncident(incidentId);
+    
+    toast({
+      title: "تم حذف البلاغ",
+      description: `تم حذف البلاغ رقم ${incidentId} بنجاح`,
+    });
+    
+    addNotification({
+      title: `تم حذف البلاغ #${incidentId}`,
+      message: `تم حذف البلاغ بواسطة ${currentUser.name}`,
+      type: "alert",
+      relatedId: incidentId,
+      sender: currentUser.name
+    });
+    
+    // Navigate back to incidents list after deletion
+    navigate('/incidents');
+  };
+
   return {
     loading,
     incident,
     operatorNotes,
     setOperatorNotes,
+    images,
     handleSaveNotes,
     handleCompleteIncident,
-    handleAddComment
+    handleAddComment,
+    handleAddImage,
+    handleRemoveImage,
+    handleDeleteIncident
   };
 };

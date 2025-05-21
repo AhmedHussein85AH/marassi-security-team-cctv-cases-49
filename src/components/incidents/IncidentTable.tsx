@@ -17,15 +17,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertTriangle, MessageCircle, Clipboard } from "lucide-react";
+import { AlertTriangle, MessageCircle, Clipboard, Trash2 } from "lucide-react";
 import type { Incident } from "@/stores/incidentStore";
 
 interface IncidentTableProps {
   incidents: Incident[];
   onViewDetails: (id: string) => void;
+  onDeleteIncident?: (id: string) => void;
 }
 
-const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails }) => {
+const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails, onDeleteIncident }) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "تم المعالجة":
@@ -54,7 +55,7 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails 
           <TableHead className="text-right w-[150px]">المبلغ</TableHead>
           <TableHead className="text-right w-[100px]">التعليقات</TableHead>
           <TableHead className="text-right w-[150px]">ملاحظات المشغل</TableHead>
-          <TableHead className="text-right w-[100px]">الإجراءات</TableHead>
+          <TableHead className="text-right w-[150px]">الإجراءات</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -119,13 +120,24 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails 
               </TooltipProvider>
             </TableCell>
             <TableCell>
-              <Button 
-                variant="ghost"
-                size="sm" 
-                onClick={() => onViewDetails(incident.id)}
-              >
-                عرض التفاصيل
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost"
+                  size="sm" 
+                  onClick={() => onViewDetails(incident.id)}
+                >
+                  عرض التفاصيل
+                </Button>
+                {onDeleteIncident && (
+                  <Button 
+                    variant="destructive"
+                    size="sm" 
+                    onClick={() => onDeleteIncident(incident.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}

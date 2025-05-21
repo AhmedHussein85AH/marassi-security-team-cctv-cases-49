@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -37,6 +36,7 @@ export interface Incident {
   category?: string;
   assignedTo?: string;
   attachments?: Attachment[];
+  images?: string[];
   createdAt?: string;
   lastUpdated?: string;
 }
@@ -50,6 +50,8 @@ interface IncidentState {
   addComment: (incidentId: string, comment: Omit<Comment, 'id' | 'timestamp'>) => void;
   updateStatus: (incidentId: string, newStatus: string, operatorNotes?: string) => void;
   assignIncident: (incidentId: string, userId: string) => void;
+  addIncidentImage: (incidentId: string, imageUrl: string) => void;
+  removeIncidentImage: (incidentId: string, imageIndex: number) => void;
 }
 
 // بيانات البلاغات التجريبية
@@ -172,6 +174,7 @@ const useIncidentStore = create<IncidentState>()(
           createdAt: now,
           lastUpdated: now,
           attachments: newIncident.attachments || [],
+          images: newIncident.images || [],
           priority: newIncident.priority || "متوسط",
           category: newIncident.category || "أمني"
         };
@@ -236,6 +239,41 @@ const useIncidentStore = create<IncidentState>()(
                 lastUpdated: now
               } : incident
           )
+        }));
+      },
+
+      addIncidentImage: (incidentId: string, imageUrl: string) => {
+        const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        
+        set(state => ({
+          incidents: state.incidents.map(incident => 
+            incident.id === incidentId ?
+              {
+                ...incident,
+                images: [...(incident.images || []), imageUrl],
+                lastUpdated: now
+              } : incident
+          )
+        }));
+      },
+
+      removeIncidentImage: (incidentId: string, imageIndex: number) => {
+        const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        
+        set(state => ({
+          incidents: state.incidents.map(incident => {
+            if (incident.id === incidentId && incident.images) {
+              const updatedImages = [...incident.images];
+              updatedImages.splice(imageIndex, 1);
+              
+              return {
+                ...incident,
+                images: updatedImages,
+                lastUpdated: now
+              };
+            }
+            return incident;
+          })
         }));
       }
     }),

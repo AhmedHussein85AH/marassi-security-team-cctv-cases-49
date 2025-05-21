@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowLeft, Check, Search, Plus } from "lucide-react";
+import { ArrowLeft, Check, Search, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ interface IncidentHeaderProps {
   incidentId?: string;
   status?: string;
   onCompleteIncident?: () => void;
+  onDeleteIncident?: () => void;
   
   // For incidents dashboard
   searchTerm?: string;
@@ -21,6 +22,7 @@ const IncidentHeader: React.FC<IncidentHeaderProps> = ({
   incidentId,
   status,
   onCompleteIncident,
+  onDeleteIncident,
   searchTerm,
   onSearchChange,
   onNewIncident
@@ -41,11 +43,18 @@ const IncidentHeader: React.FC<IncidentHeaderProps> = ({
             <ArrowLeft className="h-4 w-4 ml-1" />
             عودة للبلاغات
           </Button>
-          <div className="mr-auto">
+          <div className="mr-auto flex items-center gap-2">
             {status !== "تم المعالجة" && onCompleteIncident && (
               <Button onClick={onCompleteIncident} className="gap-1">
                 <Check className="h-4 w-4 ml-1" />
                 إنهاء البلاغ
+              </Button>
+            )}
+            
+            {onDeleteIncident && (
+              <Button onClick={onDeleteIncident} variant="destructive" className="gap-1">
+                <Trash2 className="h-4 w-4 ml-1" />
+                حذف البلاغ
               </Button>
             )}
           </div>
