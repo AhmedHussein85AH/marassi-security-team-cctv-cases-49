@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Shield, 
@@ -17,6 +18,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import MainSidebar from "@/components/MainSidebar";
 import { Link } from "react-router-dom";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import DashboardCharts from "@/components/dashboard/DashboardCharts";
 
 const Index = () => {
   return (
@@ -90,6 +92,9 @@ const Index = () => {
                 <p className="text-xs text-green-600">2 تنبيهات جديدة</p>
               </Card>
             </div>
+            
+            {/* Add our new charts component */}
+            <DashboardCharts />
             
             <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card className="rounded-lg border bg-card text-card-foreground shadow">
