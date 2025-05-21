@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@/hooks/use-toast';
 import { User } from '@/types/user';
 
 interface AuthContextType {
