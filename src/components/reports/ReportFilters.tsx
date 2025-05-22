@@ -1,13 +1,12 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileSpreadsheet } from 'lucide-react';
 import type { Incident } from "@/types/incident";
 import { useReportFilters } from '@/hooks/useReportFilters';
 import DateFilterOptions from './DateFilterOptions';
+import ReportFilterActions from './ReportFilterActions';
 
 interface ReportFiltersProps {
   incidents: Incident[];
@@ -85,12 +84,10 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredRep
             />
           </div>
 
-          <div className="flex gap-4">
-            <Button onClick={() => exportToExcel(getFilteredReports)} className="gap-2">
-              <FileSpreadsheet className="ml-2 h-4 w-4" />
-              تصدير إلى Excel
-            </Button>
-          </div>
+          <ReportFilterActions 
+            exportToExcel={exportToExcel} 
+            getFilteredReports={getFilteredReports} 
+          />
         </div>
       </CardContent>
     </Card>
