@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useToast } from "@/hooks/use-toast";
@@ -125,11 +126,6 @@ export const useIncidentDetail = (incidentId: string | undefined) => {
     
     addIncidentImage(incidentId, imageUrl);
     setImages(prev => [...prev, imageUrl]);
-    
-    toast({
-      title: "تم إضافة الصورة",
-      description: "تم إضافة الصورة بنجاح للبلاغ",
-    });
   };
 
   const handleRemoveImage = (index: number) => {
@@ -140,11 +136,6 @@ export const useIncidentDetail = (incidentId: string | undefined) => {
       const newImages = [...prev];
       newImages.splice(index, 1);
       return newImages;
-    });
-    
-    toast({
-      title: "تم حذف الصورة",
-      description: "تم حذف الصورة بنجاح من البلاغ",
     });
   };
 

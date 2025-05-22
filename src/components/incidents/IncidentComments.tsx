@@ -1,13 +1,11 @@
+
 import React, { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { formatDistanceToNow } from "date-fns";
-import { ar } from "date-fns/locale";
-import { MessageSquare, Send } from "lucide-react";
-import { useNotifications } from "@/contexts/NotificationContext";
 import { format, isValid, parseISO } from 'date-fns';
+import { ar } from "date-fns/locale";
+import { Send } from "lucide-react";
 
 interface Comment {
   id: string;
@@ -61,15 +59,13 @@ const IncidentComments: React.FC<IncidentCommentsProps> = ({
         title: "تم إضافة تعليق",
         description: "تم إضافة التعليق بنجاح",
       });
+    } else {
+      toast({
+        title: "خطأ",
+        description: "لا يمكن إضافة تعليق فارغ",
+        variant: "destructive"
+      });
     }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
   };
 
   return (
@@ -77,20 +73,26 @@ const IncidentComments: React.FC<IncidentCommentsProps> = ({
       <h3 className="text-lg font-medium">التعليقات</h3>
 
       <div className="space-y-4">
-        {comments.map((comment) => (
-          <div key={comment.id} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <p className="font-medium">{comment.userName}</p>
-                <p className="text-sm text-gray-500">{comment.userRole}</p>
-              </div>
-              <time className="text-sm text-gray-500">
-                {formatTimestamp(comment.timestamp)}
-              </time>
-            </div>
-            <p className="text-gray-700 dark:text-gray-300">{comment.text}</p>
+        {comments.length === 0 ? (
+          <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg text-center">
+            <p className="text-gray-500">لا توجد تعليقات حتى الآن</p>
           </div>
-        ))}
+        ) : (
+          comments.map((comment) => (
+            <div key={comment.id} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-medium">{comment.userName}</p>
+                  <p className="text-sm text-gray-500">{comment.userRole}</p>
+                </div>
+                <time className="text-sm text-gray-500">
+                  {formatTimestamp(comment.timestamp)}
+                </time>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300">{comment.text}</p>
+            </div>
+          ))
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-2">

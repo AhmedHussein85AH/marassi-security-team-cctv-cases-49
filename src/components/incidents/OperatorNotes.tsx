@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Image, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface OperatorNotesProps {
   notes: string;
@@ -24,11 +25,25 @@ const OperatorNotes: React.FC<OperatorNotesProps> = ({
   onRemoveImage
 }) => {
   const [imageUrl, setImageUrl] = useState("");
+  const { toast } = useToast();
 
-  const handleAddImage = () => {
+  const handleAddImage = (e: React.FormEvent) => {
+    e.preventDefault(); // منع إعادة تحميل الصفحة
+    
     if (imageUrl.trim()) {
       onAddImage(imageUrl);
       setImageUrl("");
+      
+      toast({
+        title: "تمت الإضافة",
+        description: "تم إضافة الصورة بنجاح",
+      });
+    } else {
+      toast({
+        title: "خطأ",
+        description: "يرجى إدخال رابط صورة صحيح",
+        variant: "destructive"
+      });
     }
   };
 
@@ -46,7 +61,7 @@ const OperatorNotes: React.FC<OperatorNotesProps> = ({
         />
 
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
+          <form onSubmit={handleAddImage} className="flex items-center gap-2">
             <Input
               type="text"
               placeholder="أدخل رابط الصورة"
@@ -55,15 +70,14 @@ const OperatorNotes: React.FC<OperatorNotesProps> = ({
               className="flex-grow"
             />
             <Button 
-              type="button" 
-              onClick={handleAddImage}
+              type="submit"
               variant="outline"
               className="flex items-center gap-2"
             >
               <Image className="h-4 w-4" />
               إضافة صورة
             </Button>
-          </div>
+          </form>
 
           {images.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -73,6 +87,9 @@ const OperatorNotes: React.FC<OperatorNotesProps> = ({
                     src={img} 
                     alt={`صورة ${index + 1}`} 
                     className="w-full h-32 object-cover rounded-md"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=صورة+غير+متوفرة";
+                    }}
                   />
                   <button
                     type="button"
