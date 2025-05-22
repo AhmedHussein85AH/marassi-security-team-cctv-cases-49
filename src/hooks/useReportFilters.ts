@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import { useToast } from "@/hooks/use-toast";
 import type { Incident } from "@/types/incident";
+import { ar } from 'date-fns/locale';
 
 interface UseReportFiltersResult {
   date: Date | undefined;
@@ -121,6 +122,3 @@ export const useReportFilters = (): UseReportFiltersResult => {
     exportToExcel
   };
 };
-
-// We need to import format from date-fns
-import { ar } from 'date-fns/locale';
