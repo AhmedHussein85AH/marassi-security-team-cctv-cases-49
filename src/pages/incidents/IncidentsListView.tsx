@@ -71,11 +71,11 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
       );
     }
     
-    if (incidentType) {
+    if (incidentType && incidentType !== "all") {
       result = result.filter(incident => incident.type === incidentType);
     }
     
-    if (incidentStatus) {
+    if (incidentStatus && incidentStatus !== "all") {
       result = result.filter(incident => incident.status === incidentStatus);
     }
     
