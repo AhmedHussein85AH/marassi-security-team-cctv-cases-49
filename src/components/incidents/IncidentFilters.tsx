@@ -80,7 +80,7 @@ const IncidentFilters: React.FC<IncidentFiltersProps> = ({
           </div>
           
           <div className="w-full sm:w-auto">
-            <Select value={incidentType} onValueChange={onIncidentTypeChange}>
+            <Select value={incidentType || "all"} onValueChange={onIncidentTypeChange}>
               <SelectTrigger className="min-w-[200px] text-right">
                 <SelectValue placeholder="نوع البلاغ" />
               </SelectTrigger>
@@ -96,7 +96,7 @@ const IncidentFilters: React.FC<IncidentFiltersProps> = ({
           </div>
           
           <div className="w-full sm:w-auto">
-            <Select value={incidentStatus} onValueChange={onIncidentStatusChange}>
+            <Select value={incidentStatus || "all"} onValueChange={onIncidentStatusChange}>
               <SelectTrigger className="min-w-[200px] text-right">
                 <SelectValue placeholder="حالة البلاغ" />
               </SelectTrigger>

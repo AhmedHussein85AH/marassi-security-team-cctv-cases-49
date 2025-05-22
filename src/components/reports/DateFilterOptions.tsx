@@ -52,6 +52,7 @@ const DateFilterOptions: React.FC<DateFilterOptionsProps> = ({
             selected={date}
             onSelect={setDate}
             locale={ar}
+            className="p-3 pointer-events-auto"
           />
         </PopoverContent>
       </Popover>

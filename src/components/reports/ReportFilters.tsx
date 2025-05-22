@@ -46,7 +46,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredRep
         <div className="space-y-4">
           <div className="flex flex-wrap gap-4">
             <div className="w-full md:w-auto">
-              <Select value={filterType} onValueChange={handleFilterTypeChange}>
+              <Select value={filterType || "all"} onValueChange={handleFilterTypeChange}>
                 <SelectTrigger className="w-[200px] text-right">
                   <SelectValue placeholder="اختر نوع التصفية" />
                 </SelectTrigger>
