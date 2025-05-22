@@ -151,7 +151,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredRep
 
             {filterType === 'month' && (
               <Select 
-                value={selectedMonth ? format(selectedMonth, 'MM') : ''} 
+                value={selectedMonth ? format(selectedMonth, 'MM') : undefined} 
                 onValueChange={(value) => {
                   const date = new Date();
                   date.setMonth(parseInt(value) - 1);
@@ -176,7 +176,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredRep
 
             {filterType === 'year' && (
               <Select 
-                value={selectedYear ? selectedYear.getFullYear().toString() : ''} 
+                value={selectedYear ? selectedYear.getFullYear().toString() : undefined} 
                 onValueChange={(value) => {
                   const date = new Date();
                   date.setFullYear(parseInt(value));

@@ -145,7 +145,7 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
                   <SelectValue placeholder="نوع البلاغ" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">الكل</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
                   {uniqueTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
@@ -161,7 +161,7 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
                   <SelectValue placeholder="حالة البلاغ" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">الكل</SelectItem>
+                  <SelectItem value="all">الكل</SelectItem>
                   {uniqueStatuses.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
