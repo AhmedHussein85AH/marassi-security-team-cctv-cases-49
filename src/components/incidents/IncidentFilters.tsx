@@ -56,8 +56,11 @@ const IncidentFilters: React.FC<IncidentFiltersProps> = ({
   allIncidents
 }) => {
   // Get unique incident types and statuses
-  const uniqueTypes = Array.from(new Set(allIncidents.map(incident => incident.type)));
-  const uniqueStatuses = Array.from(new Set(allIncidents.map(incident => incident.status)));
+  const uniqueTypes = Array.from(new Set(allIncidents.map(incident => incident.type)))
+    .filter(type => type && type.trim() !== ''); // Filter out empty or undefined values
+    
+  const uniqueStatuses = Array.from(new Set(allIncidents.map(incident => incident.status)))
+    .filter(status => status && status.trim() !== ''); // Filter out empty or undefined values
 
   return (
     <Card className="mb-6">

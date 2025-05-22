@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Incident } from "@/types/incident";
-import { format } from "date-fns"; // Import moved to the top
+import { format } from "date-fns";
 
 interface UseIncidentFiltersResult {
   searchTerm: string;
