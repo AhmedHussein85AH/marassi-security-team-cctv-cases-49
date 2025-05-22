@@ -44,8 +44,8 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
   
   // State for filters
   const [searchTerm, setSearchTerm] = useState("");
-  const [incidentType, setIncidentType] = useState("");
-  const [incidentStatus, setIncidentStatus] = useState("");
+  const [incidentType, setIncidentType] = useState<string | undefined>(undefined);
+  const [incidentStatus, setIncidentStatus] = useState<string | undefined>(undefined);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(incidents);
   
@@ -89,8 +89,8 @@ const IncidentsListView: React.FC<IncidentsListViewProps> = ({ incidents, onView
 
   const resetFilters = () => {
     setSearchTerm("");
-    setIncidentType("");
-    setIncidentStatus("");
+    setIncidentType(undefined);
+    setIncidentStatus(undefined);
     setDate(undefined);
   };
 

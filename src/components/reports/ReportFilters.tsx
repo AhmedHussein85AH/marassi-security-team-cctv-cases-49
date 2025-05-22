@@ -20,7 +20,7 @@ interface ReportFiltersProps {
 
 const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredReports }) => {
   const [date, setDate] = useState<Date>();
-  const [filterType, setFilterType] = useState('all');
+  const [filterType, setFilterType] = useState<string>('all');
   const [location, setLocation] = useState('');
   const [chaletNumber, setChaletNumber] = useState('');
   const [selectedMonth, setSelectedMonth] = useState<Date>();
