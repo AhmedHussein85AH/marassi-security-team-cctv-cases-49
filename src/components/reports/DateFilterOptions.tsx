@@ -64,9 +64,11 @@ const DateFilterOptions: React.FC<DateFilterOptionsProps> = ({
       <Select 
         value={selectedMonth ? format(selectedMonth, 'MM') : undefined} 
         onValueChange={(value) => {
-          const date = new Date();
-          date.setMonth(parseInt(value) - 1);
-          setSelectedMonth(date);
+          if (value) {
+            const date = new Date();
+            date.setMonth(parseInt(value) - 1);
+            setSelectedMonth(date);
+          }
         }}
       >
         <SelectTrigger className="w-[200px]">
@@ -91,9 +93,11 @@ const DateFilterOptions: React.FC<DateFilterOptionsProps> = ({
       <Select 
         value={selectedYear ? selectedYear.getFullYear().toString() : undefined} 
         onValueChange={(value) => {
-          const date = new Date();
-          date.setFullYear(parseInt(value));
-          setSelectedYear(date);
+          if (value) {
+            const date = new Date();
+            date.setFullYear(parseInt(value));
+            setSelectedYear(date);
+          }
         }}
       >
         <SelectTrigger className="w-[200px]">
@@ -101,7 +105,10 @@ const DateFilterOptions: React.FC<DateFilterOptionsProps> = ({
         </SelectTrigger>
         <SelectContent>
           {years.map((year) => (
-            <SelectItem key={year} value={year.toString()}>
+            <SelectItem 
+              key={year} 
+              value={year.toString()}
+            >
               {year}
             </SelectItem>
           ))}

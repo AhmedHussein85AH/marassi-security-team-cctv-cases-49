@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Incident } from "@/types/incident";
+import { format } from "date-fns"; // Import moved to the top
 
 interface UseIncidentFiltersResult {
   searchTerm: string;
@@ -17,8 +18,8 @@ interface UseIncidentFiltersResult {
 
 export const useIncidentFilters = (incidents: Incident[]): UseIncidentFiltersResult => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [incidentType, setIncidentType] = useState<string | undefined>(undefined);
-  const [incidentStatus, setIncidentStatus] = useState<string | undefined>(undefined);
+  const [incidentType, setIncidentType] = useState<string | undefined>("all");
+  const [incidentStatus, setIncidentStatus] = useState<string | undefined>("all");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [filteredIncidents, setFilteredIncidents] = useState<Incident[]>(incidents);
   
@@ -53,8 +54,8 @@ export const useIncidentFilters = (incidents: Incident[]): UseIncidentFiltersRes
 
   const resetFilters = () => {
     setSearchTerm("");
-    setIncidentType(undefined);
-    setIncidentStatus(undefined);
+    setIncidentType("all");
+    setIncidentStatus("all");
     setDate(undefined);
   };
   
@@ -71,6 +72,3 @@ export const useIncidentFilters = (incidents: Incident[]): UseIncidentFiltersRes
     resetFilters
   };
 };
-
-// We need to import format from date-fns
-import { format } from "date-fns";

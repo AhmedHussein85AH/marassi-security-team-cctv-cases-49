@@ -27,6 +27,7 @@ const ReportFilters: React.FC<ReportFiltersProps> = ({ incidents, getFilteredRep
     setSelectedMonth,
     selectedYear,
     setSelectedYear,
+    resetFilters,
     exportToExcel
   } = useReportFilters();
 

@@ -1,28 +1,47 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import MainSidebar from "@/components/MainSidebar";
 import ReportFilters from '@/components/reports/ReportFilters';
 import ReportsTable from '@/components/reports/ReportsTable';
 import useIncidentStore from "@/stores/incidents";
 import { filterReports } from '@/utils/reportFilters';
+import { useReportFilters } from '@/hooks/useReportFilters';
 
 const Reports = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { incidents } = useIncidentStore();
   
+  const {
+    date,
+    filterType,
+    location,
+    chaletNumber,
+    selectedMonth,
+    selectedYear
+  } = useReportFilters();
+  
   const getFilteredReports = useCallback(() => {
     return filterReports(
       incidents, 
       searchTerm, 
-      'all', // Default filter type
-      undefined, // Date
-      undefined, // Selected month
-      undefined, // Selected year
-      '', // Location
-      '' // Chalet number
+      filterType,
+      date,
+      selectedMonth,
+      selectedYear,
+      location,
+      chaletNumber
     );
-  }, [incidents, searchTerm]);
+  }, [
+    incidents, 
+    searchTerm, 
+    filterType, 
+    date, 
+    selectedMonth, 
+    selectedYear, 
+    location, 
+    chaletNumber
+  ]);
 
   return (
     <SidebarProvider>
