@@ -1,10 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { User } from '@/types/user';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api';
 
 interface AuthContextType {
   user: User | null;
@@ -69,12 +67,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      // Set the default authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
     }
     setIsLoading(false);
   }, []);
@@ -83,40 +82,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password
-      });
+      // محاكاة تأخير الشبكة
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const { token, user: userData } = response.data.data;
+      const foundUser = mockUsers.find(u => u.email === email && u.password === password);
       
-      // Set the authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-      // Store user data and token
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', token);
-      
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: `مرحباً بك ${userData.name}`,
-      });
-      
-      navigate('/');
-    } catch (error) {
-      let errorMessage = 'حدث خطأ غير متوقع';
-      
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+      if (foundUser) {
+        const userCopy: User = {...foundUser};
+        userCopy.lastLogin = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        
+        setUser(userCopy);
+        localStorage.setItem('user', JSON.stringify(userCopy));
+        
+        toast({
+          title: "تم تسجيل الدخول بنجاح",
+          description: `مرحباً بك ${foundUser.name}`,
+        });
+        
+        navigate('/');
+      } else {
+        throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
       }
-      
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "خطأ في تسجيل الدخول",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "حدث خطأ غير متوقع",
       });
     } finally {
       setIsLoading(false);
@@ -126,9 +117,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
-    
     toast({
       title: "تم تسجيل الخروج",
       description: "نراك قريباً!",
@@ -140,9 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!user) throw new Error('المستخدم غير مسجل الدخول');
       
-      const response = await axios.put(`${API_URL}/users/${user.id}`, userData);
-      const updatedUser = response.data.data;
-      
+      const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       
@@ -153,18 +139,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return Promise.resolve();
     } catch (error) {
-      let errorMessage = 'حدث خطأ غير متوقع';
-      
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
       toast({
         variant: "destructive",
         title: "خطأ في تحديث البيانات",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "حدث خطأ غير متوقع",
       });
       return Promise.reject(error);
     }

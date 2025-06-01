@@ -1,52 +1,42 @@
+
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const UserImportTemplate = () => {
-  const handleDownloadTemplate = () => {
-    // قم بإنشاء بيانات نموذجية
-    const templateData = [
-      {
-        "الاسم": "اسم المستخدم",
-        "البريد الإلكتروني": "example@email.com",
-        "كلمة المرور": "123456",
-        "الدور": "مدير/مشغل كاميرات/أدمن",
-        "الحالة": "نشط/غير نشط"
-      }
-    ];
+  const { toast } = useToast();
 
-    // تحويل البيانات إلى CSV مع دعم العربية
-    const headers = Object.keys(templateData[0]);
-    const rows = [
-      headers.join('\t'),
-      Object.values(templateData[0]).join('\t')
-    ];
+  const downloadTemplate = () => {
+    // Create a simple CSV template
+    const csvContent = "الاسم,البريد الإلكتروني,كلمة المرور,الدور,القسم,رقم الهاتف\nأحمد محمد,ahmed@example.com,123456,مدير,إدارة العمليات,0500000001\nسارة خالد,sarah@example.com,123456,مشغل كاميرات,غرفة المراقبة,0500000002";
     
-    // إضافة BOM للدعم الأفضل للغة العربية
-    const BOM = '\ufeff';
-    const csvContent = BOM + rows.join('\n');
-
-    // إنشاء ملف للتحميل
-    const blob = new Blob([csvContent], { 
-      type: 'text/csv;charset=utf-8-sig;' 
-    });
-    
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'قالب_المستخدمين.xls';
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "نموذج_استيراد_المستخدمين.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "تم تحميل النموذج",
+      description: "تم تحميل نموذج استيراد المستخدمين بنجاح",
+    });
   };
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
+    <Button 
+      variant="ghost"
       className="flex items-center gap-2"
-      onClick={handleDownloadTemplate}
+      onClick={downloadTemplate}
     >
       <Download className="h-4 w-4" />
-      تحميل قالب Excel
+      تحميل نموذج Excel
     </Button>
   );
 };
 
-export default UserImportTemplate; 
+export default UserImportTemplate;
