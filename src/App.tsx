@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -9,12 +10,10 @@ function App() {
       <div className="min-h-screen bg-background">
         <main className="flex min-h-screen flex-col">
           <div className="flex flex-1">
-            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+            <div className="flex-1">
               <Routes>
-                <Route path="/" element={<div className="text-center py-8">
-                  <h1 className="text-4xl font-bold mb-4">نظام إدارة الأمن</h1>
-                  <p className="text-xl text-gray-600">مرحباً بكم في نظام إدارة الأمن</p>
-                </div>} />
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
               </Routes>
             </div>
           </div>
