@@ -8,7 +8,11 @@ import {
   Users, 
   Settings, 
   Shield,
-  LogOut
+  LogOut,
+  UserCheck,
+  Anchor,
+  Phone,
+  Box
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authService } from "@/services/authService";
@@ -40,9 +44,9 @@ const MainSidebar = ({ activeItem }: MainSidebarProps) => {
   // التحقق من الصلاحيات
   const canViewDashboard = authService.hasPermission(user, 'view_dashboard');
   const canViewIncidents = authService.hasPermission(user, 'view_incidents');
-  const canViewCameras = authService.hasPermission(user, 'view_cameras');
   const canViewReports = authService.hasPermission(user, 'view_reports');
   const canViewUsers = authService.hasPermission(user, 'view_users');
+  const canViewLostAndFound = authService.hasPermission(user, 'view_lost_and_found');
 
   return (
     <div className="fixed right-0 top-0 h-screen w-64 bg-background border-l">
@@ -67,31 +71,52 @@ const MainSidebar = ({ activeItem }: MainSidebarProps) => {
                 </Link>
               )}
               
+              {canViewLostAndFound && (
+                <Link to="/lost-and-found" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/lost-and-found" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">المعثورات والمفقودات</span>
+                  <Box className="h-4 w-4" />
+                </Link>
+              )}
+              
               {canViewIncidents && (
                 <Link to="/incidents" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath.startsWith("/incidents") ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
-                  <span className="flex-1 text-right">البلاغات</span>
+                  <span className="flex-1 text-right">بلاغات غرفة كاميرات المراقبة</span>
                   <AlertTriangle className="h-4 w-4" />
                 </Link>
               )}
-              
-              {canViewCameras && (
-                <Link to="/cameras" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/cameras" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
-                  <span className="flex-1 text-right">الكاميرات</span>
-                  <Camera className="h-4 w-4" />
+
+              {canViewReports && (
+                <Link to="/daily-port-events" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/daily-port-events" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">أحداث مراسي اليومية</span>
+                  <Anchor className="h-4 w-4" />
                 </Link>
               )}
-              
+
+              {canViewReports && (
+                <Link to="/call-center-reports" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/call-center-reports" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">بلاغات الكول سنتر</span>
+                  <Phone className="h-4 w-4" />
+                </Link>
+              )}
+
+              {canViewReports && (
+                <Link to="/work-permits" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/work-permits" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">تصاريح العمل</span>
+                  <FileText className="h-4 w-4" />
+                </Link>
+              )}
+
               {canViewReports && (
                 <Link to="/reports" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/reports" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
                   <span className="flex-1 text-right">التقارير</span>
                   <FileText className="h-4 w-4" />
                 </Link>
               )}
-              
-              {canViewUsers && (
-                <Link to="/users" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath.startsWith("/users") ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
-                  <span className="flex-1 text-right">المستخدمين</span>
-                  <Users className="h-4 w-4" />
+
+              {canViewReports && (
+                <Link to="/incident-report-form" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/incident-report-form" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">Incident Report Form</span>
+                  <FileText className="h-4 w-4" />
                 </Link>
               )}
             </nav>
@@ -101,6 +126,16 @@ const MainSidebar = ({ activeItem }: MainSidebarProps) => {
             <div className="p-2 mt-4">
               <div className="text-right text-xs font-medium text-muted-foreground mb-2">الإعدادات</div>
               <nav className="space-y-1">
+                {canViewUsers && (
+                  <Link to="/users" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath.startsWith("/users") ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                    <span className="flex-1 text-right">المستخدمين</span>
+                    <Users className="h-4 w-4" />
+                  </Link>
+                )}
+                <Link to="/roles" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/roles" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
+                  <span className="flex-1 text-right">الأدوار والصلاحيات</span>
+                  <UserCheck className="h-4 w-4" />
+                </Link>
                 <Link to="/settings" className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground ${currentPath === "/settings" ? "bg-accent text-accent-foreground" : "text-muted-foreground"}`}>
                   <span className="flex-1 text-right">الإعدادات</span>
                   <Settings className="h-4 w-4" />

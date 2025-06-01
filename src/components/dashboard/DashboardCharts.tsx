@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   LineChart,
@@ -18,42 +17,71 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBarIncreasing, ChartLine, ChartPie } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import useIncidentStore from "@/stores/incidents";
+import { format, subDays, parseISO } from "date-fns";
+import { ar } from "date-fns/locale";
 
-// Sample data for incidents by day
-const incidentsByDayData = [
-  { day: "السبت", count: 5 },
-  { day: "الأحد", count: 3 },
-  { day: "الإثنين", count: 7 },
-  { day: "الثلاثاء", count: 2 },
-  { day: "الأربعاء", count: 6 },
-  { day: "الخميس", count: 4 },
-  { day: "الجمعة", count: 1 }
+const COLORS = [
+  "#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A020F0", "#FF1493", "#FFD700", "#8B0000"
 ];
-
-// Sample data for incident types
-const incidentTypesData = [
-  { name: "سرقة", value: 8 },
-  { name: "تخريب", value: 5 },
-  { name: "تسلل", value: 3 },
-  { name: "أخرى", value: 4 }
-];
-
-// Sample data for incidents status
-const incidentsStatusData = [
-  { name: "جاري المعالجة", count: 8 },
-  { name: "مغلق", count: 12 },
-  { name: "جديد", count: 4 }
-];
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const DashboardCharts = () => {
+  const { incidents } = useIncidentStore();
+
+  // إحصائيات البلاغات حسب الأيام (آخر 7 أيام)
+  const incidentsByDayData = React.useMemo(() => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = subDays(new Date(), 6 - i);
+      const dateString = format(date, 'yyyy-MM-dd');
+      const dayName = format(date, 'EEEE', { locale: ar });
+      
+      const count = incidents.filter(incident => incident.date === dateString).length;
+      
+      return {
+        day: dayName,
+        count,
+        date: dateString
+      };
+    });
+    
+    return last7Days;
+  }, [incidents]);
+
+  // إحصائيات حالات البلاغات للرسم البياني الدائري
+  const incidentsStatusData = React.useMemo(() => {
+    const statusCounts = incidents.reduce((acc, incident) => {
+      acc[incident.status] = (acc[incident.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(statusCounts).map(([name, value]) => ({
+      name,
+      value
+    }));
+  }, [incidents]);
+
+  // إحصائيات أنواع البلاغات للرسم البياني العمودي
+  const incidentTypesData = React.useMemo(() => {
+    const typeCounts = incidents.reduce((acc, incident) => {
+      acc[incident.type] = (acc[incident.type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(typeCounts).map(([name, count]) => ({
+      name,
+      count
+    }));
+  }, [incidents]);
+
+  const STATUS_COLORS = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#F97316']; // أحمر، أزرق، أخضر، أصفر، بنفسجي، برتقالي
+  // const TYPE_COLORS = '#3B82F6'; // لم نعد بحاجة لهذا المتغير
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mt-6">
       {/* Incidents by Day (Line Chart) */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-medium">البلاغات حسب الأيام</CardTitle>
+          <CardTitle className="text-base font-medium">البلاغات حسب الأيام (آخر 7 أيام)</CardTitle>
           <ChartLine className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
@@ -65,13 +93,22 @@ const DashboardCharts = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="day" />
               <YAxis />
-              <Tooltip />
+              <Tooltip 
+                formatter={(value) => [value, 'عدد البلاغات']}
+                labelFormatter={(label, payload) => {
+                  if (payload && payload[0]) {
+                    return `${label} (${payload[0].payload.date})`;
+                  }
+                  return label;
+                }}
+              />
               <Legend />
               <Line
                 type="monotone"
                 dataKey="count"
                 name="عدد البلاغات"
-                stroke="#8884d8"
+                stroke="#3B82F6"
+                strokeWidth={3}
                 activeDot={{ r: 8 }}
               />
             </LineChart>
@@ -79,17 +116,17 @@ const DashboardCharts = () => {
         </CardContent>
       </Card>
 
-      {/* Incident Types (Pie Chart) */}
+      {/* Incidents Status (Pie Chart) */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-medium">أنواع البلاغات</CardTitle>
+          <CardTitle className="text-base font-medium">حالة البلاغات</CardTitle>
           <ChartPie className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent className="flex justify-center">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={incidentTypesData}
+                data={incidentsStatusData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -99,8 +136,8 @@ const DashboardCharts = () => {
                 nameKey="name"
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
               >
-                {incidentTypesData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                {incidentsStatusData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip formatter={(value) => [`${value}`, 'عدد البلاغات']} />
@@ -110,43 +147,34 @@ const DashboardCharts = () => {
         </CardContent>
       </Card>
 
-      {/* Incidents Status (Bar Chart) */}
+      {/* Incident Types (Vertical Bar Chart) */}
       <Card className="col-span-full">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base font-medium">حالة البلاغات</CardTitle>
+          <CardTitle className="text-base font-medium">أنواع البلاغات</CardTitle>
           <ChartBarIncreasing className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            className="h-[300px]"
-            config={{
-              "جديد": {
-                color: "#FFBB28",
-              },
-              "جاري المعالجة": {
-                color: "#0088FE",
-              },
-              "مغلق": {
-                color: "#00C49F",
-              },
-            }}
-          >
-            <BarChart data={incidentsStatusData}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={incidentTypesData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="name" />
               <YAxis />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    indicator="line"
-                    nameKey="name"
-                    formatter={(value) => [value, "عدد البلاغات"]}
-                  />
-                }
-              />
-              <Bar dataKey="count" name="عدد البلاغات" />
+              <Tooltip formatter={(value) => [value, 'عدد البلاغات']} />
+              <Legend />
+              <Bar 
+                dataKey="count" 
+                name="عدد البلاغات"
+                radius={[4, 4, 0, 0]}
+              >
+                {incidentTypesData.map((entry, index) => (
+                  <Cell key={`bar-cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
             </BarChart>
-          </ChartContainer>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>

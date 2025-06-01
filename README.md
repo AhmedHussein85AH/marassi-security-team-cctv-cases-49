@@ -1,62 +1,110 @@
-# نظام إدارة الأمن | Security Management System
+# Security Management System
 
-نظام متكامل لإدارة الأمن والمراقبة باللغة العربية
+A comprehensive security management system for CCTV cases, built with React, Node.js, and MongoDB.
 
-## المميزات | Features
+## Project Structure
 
-- ✨ واجهة مستخدم عربية حديثة
-- 🔐 نظام صلاحيات متعدد المستويات
-- 👥 إدارة المستخدمين
-- 📊 التقارير والإحصائيات
-- 📁 استيراد وتصدير البيانات
-- 🎨 تصميم متجاوب مع جميع الأجهزة
+This is a monorepo containing both frontend and backend applications:
 
-## التقنيات المستخدمة | Technologies
-
-- React
-- TypeScript
-- Tailwind CSS
-- Vite
-- Shadcn UI
-
-## المتطلبات | Requirements
-
-- Node.js (version 16 or higher)
-- npm or yarn
-
-## التثبيت | Installation
-
-```bash
-# تثبيت الاعتماديات
-npm install
-
-# تشغيل بيئة التطوير
-npm run dev
-
-# بناء المشروع
-npm run build
+```
+security-management-system/
+├── frontend/           # React + Vite frontend application
+├── backend/           # Node.js + Express backend application
+├── package.json       # Root package.json for workspace management
+└── README.md         # This file
 ```
 
-## الأدوار | Roles
+## Prerequisites
 
-- 👑 أدمن (Admin)
-- 👔 مدير (Manager)
-- 🎥 مشغل كاميرات (Camera Operator)
+- Node.js >= 18.0.0
+- npm >= 9.0.0
+- MongoDB >= 6.0
 
-## المساهمة | Contributing
+## Getting Started
 
-نرحب بمساهماتكم! يرجى قراءة [دليل المساهمة](CONTRIBUTING.md) للمزيد من المعلومات.
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd security-management-system
+   ```
 
-## الترخيص | License
+2. Install dependencies:
+   ```bash
+   npm run install:all
+   ```
 
-[MIT License](LICENSE)
+3. Set up environment variables:
+   - Copy `.env.example` to `.env` in both frontend and backend directories
+   - Update the variables according to your environment
 
-## الدعم | Support
+4. Start the development servers:
+   ```bash
+   # Start both frontend and backend
+   npm run dev
 
-للمساعدة والدعم الفني، يرجى التواصل:
-- 📞 Ahmed Hussein: +201552962516
-- 📧 فتح issue جديد في هذا المستودع
+   # Start only frontend
+   npm run dev:frontend
 
----
+   # Start only backend
+   npm run dev:backend
+   ```
 
-Made with ❤️ by Ahmed Hussein © 2024
+## Available Scripts
+
+### Root Level
+- `npm run dev` - Start both frontend and backend in development mode
+- `npm run build` - Build both frontend and backend
+- `npm run test` - Run tests for both frontend and backend
+- `npm run lint` - Run linting for both frontend and backend
+
+### Frontend
+- `npm run dev:frontend` - Start frontend development server
+- `npm run build:frontend` - Build frontend for production
+- `npm run test:frontend` - Run frontend tests
+- `npm run lint:frontend` - Run frontend linting
+
+### Backend
+- `npm run dev:backend` - Start backend development server
+- `npm run build:backend` - Build backend for production
+- `npm run test:backend` - Run backend tests
+- `npm run lint:backend` - Run backend linting
+
+## Features
+
+- User authentication and authorization
+- CCTV case management
+- Real-time incident reporting
+- Report generation
+- Multi-language support (English/Arabic)
+- RTL layout support
+- Responsive design
+
+## Technology Stack
+
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Query
+- React Router
+- Radix UI
+
+### Backend
+- Node.js
+- Express
+- TypeScript
+- MongoDB with Mongoose
+- JWT Authentication
+- Express Validator
+
+## Contributing
+
+1. Create a new branch for your feature
+2. Make your changes
+3. Run tests and linting
+4. Submit a pull request
+
+## License
+
+[Your License Here] 

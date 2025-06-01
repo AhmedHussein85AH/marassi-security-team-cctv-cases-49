@@ -7,7 +7,17 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
+    hmr: {
+      timeout: 5000,
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+    headers: {
+      "Cache-Control": "no-cache",
+    },
   },
   plugins: [
     react(),
@@ -18,5 +28,12 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  optimizeDeps: {
+    force: true,
+  },
+  build: {
+    sourcemap: true,
+    chunkSizeWarningLimit: 1000,
   },
 }));

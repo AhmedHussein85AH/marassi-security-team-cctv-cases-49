@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Tooltip,
   TooltipContent,
@@ -23,9 +24,19 @@ interface IncidentTableProps {
   incidents: Incident[];
   onViewDetails: (id: string) => void;
   onDeleteIncident?: (id: string) => void;
+  selectedIncidents: string[];
+  onSelectIncident: (id: string) => void;
+  onSelectAll: () => void;
 }
 
-const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails, onDeleteIncident }) => {
+const IncidentTable: React.FC<IncidentTableProps> = ({ 
+  incidents, 
+  onViewDetails, 
+  onDeleteIncident,
+  selectedIncidents,
+  onSelectIncident,
+  onSelectAll
+}) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "تم المعالجة":
@@ -45,6 +56,12 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails,
     <Table className="w-full">
       <TableHeader>
         <TableRow>
+          <TableHead className="w-[50px]">
+            <Checkbox
+              checked={selectedIncidents.length === incidents.length}
+              onCheckedChange={onSelectAll}
+            />
+          </TableHead>
           <TableHead className="text-right w-[100px]">رقم البلاغ</TableHead>
           <TableHead className="text-right w-[150px]">نوع البلاغ</TableHead>
           <TableHead className="text-right w-[200px]">الموقع</TableHead>
@@ -59,7 +76,16 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails,
       </TableHeader>
       <TableBody>
         {incidents.map((incident) => (
-          <TableRow key={incident.id}>
+          <TableRow 
+            key={incident.id}
+            className={selectedIncidents.includes(incident.id) ? "bg-muted/50" : ""}
+          >
+            <TableCell>
+              <Checkbox
+                checked={selectedIncidents.includes(incident.id)}
+                onCheckedChange={() => onSelectIncident(incident.id)}
+              />
+            </TableCell>
             <TableCell className="text-right">{incident.id}</TableCell>
             <TableCell className="text-right">
               <div className="flex items-center gap-2">
@@ -124,6 +150,7 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails,
                   variant="ghost"
                   size="sm" 
                   onClick={() => onViewDetails(incident.id)}
+                  title="عرض التفاصيل"
                 >
                   عرض التفاصيل
                 </Button>
@@ -132,6 +159,7 @@ const IncidentTable: React.FC<IncidentTableProps> = ({ incidents, onViewDetails,
                     variant="destructive"
                     size="sm" 
                     onClick={() => onDeleteIncident(incident.id)}
+                    title="حذف البلاغ"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
