@@ -40,5 +40,8 @@
     "react-router-dom": "^7.6.1",
     "recharts": "^2.15.3",
     "winston": "^3.17.0"
-  }
+  },
+"scripts": {
+  "build:dev": "vite build --mode development"
 }
+
