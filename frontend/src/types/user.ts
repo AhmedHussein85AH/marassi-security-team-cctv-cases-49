@@ -3,7 +3,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  password: string;
+  password?: string;
   role: string;
   permissions: string[];
   department: string;
@@ -14,17 +14,23 @@ export interface User {
   createdAt: string;
 }
 
-export const defaultUserValues: User = {
-  id: 0,
-  name: "",
-  email: "",
-  password: "",
-  role: "",
-  permissions: [],
-  department: "",
-  phoneNumber: "",
-  status: "active",
-  lastLogin: new Date().toISOString(),
-  avatarUrl: "",
-  createdAt: new Date().toISOString()
-};
+export interface CreateUserData {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  department: string;
+  phoneNumber: string;
+  permissions: string[];
+}
+
+export interface UpdateUserData {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: string;
+  department?: string;
+  phoneNumber?: string;
+  permissions?: string[];
+  status?: string;
+}
