@@ -1,19 +1,17 @@
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
-import PrivateRoute from '@/components/PrivateRoute';
-import { Toaster } from '@/components/ui/toaster';
-import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import Users from '@/pages/Users';
-import AddUser from '@/pages/AddUser';
-import EditUser from '@/pages/EditUser';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Users from './pages/Users';
+import AddUser from './pages/AddUser';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-gray-50">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={
@@ -31,15 +29,9 @@ function App() {
                 <AddUser />
               </PrivateRoute>
             } />
-            <Route path="/users/edit/:id" element={
-              <PrivateRoute>
-                <EditUser />
-              </PrivateRoute>
-            } />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
-        <Toaster />
       </AuthProvider>
     </Router>
   );

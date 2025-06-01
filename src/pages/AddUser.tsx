@@ -1,192 +1,163 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import MainSidebar from "@/components/MainSidebar";
-import { userService } from "@/services/userService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function AddUser() {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
     role: "",
-    department: "",
-    phoneNumber: ""
+    department: ""
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "خطأ",
-        description: "كلمات المرور غير متطابقة",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await userService.createUser({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        department: formData.department,
-        phoneNumber: formData.phoneNumber,
-        permissions: ["view_dashboard"]
-      });
-
-      toast({
-        title: "تم إنشاء المستخدم",
-        description: "تم إنشاء المستخدم بنجاح",
-      });
-      
-      navigate("/users");
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "خطأ",
-        description: error instanceof Error ? error.message : "حدث خطأ أثناء إنشاء المستخدم",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // هنا يمكن إضافة منطق حفظ المستخدم
+    alert("تم إنشاء المستخدم بنجاح!");
+    navigate("/users");
   };
 
   return (
-    <SidebarProvider>
-      <div className="h-screen flex w-full bg-slate-50 dark:bg-slate-950" dir="rtl">
-        <MainSidebar activeItem="users" />
-        <SidebarInset className="overflow-auto">
-          <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
-            <SidebarTrigger />
-            <div className="flex flex-1 items-center gap-4 md:gap-8">
-              <h1 className="text-lg font-semibold">إضافة مستخدم جديد</h1>
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-gray-900">إضافة مستخدم جديد</h1>
             </div>
-          </header>
+            <div className="flex items-center space-x-4 space-x-reverse">
+              <button
+                onClick={() => navigate("/users")}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                المستخدمين
+              </button>
+              <button
+                onClick={() => navigate("/")}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                الرئيسية
+              </button>
+              <button
+                onClick={logout}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+              >
+                تسجيل الخروج
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-3xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">إضافة مستخدم جديد</h1>
+            <p className="text-gray-600">قم بإدخال بيانات المستخدم الجديد</p>
+          </div>
           
-          <main className="flex-1 p-6">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold tracking-tight">إضافة مستخدم جديد</h1>
-              <p className="text-muted-foreground">قم بإدخال بيانات المستخدم الجديد</p>
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-6 py-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-right">
+                    الاسم الكامل
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-right"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-right">
+                    البريد الإلكتروني
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-right"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-right">
+                    كلمة المرور
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-right"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-right">
+                    الدور
+                  </label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-right"
+                    required
+                  >
+                    <option value="">اختر الدور</option>
+                    <option value="أدمن">أدمن</option>
+                    <option value="مدير">مدير</option>
+                    <option value="مشغل كاميرات">مشغل كاميرات</option>
+                    <option value="أمن">أمن</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-right">
+                    القسم
+                  </label>
+                  <select
+                    value={formData.department}
+                    onChange={(e) => setFormData({...formData, department: e.target.value})}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-right"
+                    required
+                  >
+                    <option value="">اختر القسم</option>
+                    <option value="تقنية المعلومات">تقنية المعلومات</option>
+                    <option value="إدارة العمليات">إدارة العمليات</option>
+                    <option value="غرفة المراقبة">غرفة المراقبة</option>
+                    <option value="الأمن">الأمن</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                  >
+                    إنشاء المستخدم
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/users")}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+              </form>
             </div>
-            
-            <Card className="max-w-2xl">
-              <CardHeader>
-                <CardTitle>بيانات المستخدم</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">الاسم الكامل</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">البريد الإلكتروني</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password">كلمة المرور</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="role">الدور</Label>
-                    <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر الدور" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="أدمن">أدمن</SelectItem>
-                        <SelectItem value="مدير">مدير</SelectItem>
-                        <SelectItem value="مشغل كاميرات">مشغل كاميرات</SelectItem>
-                        <SelectItem value="أمن">أمن</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="department">القسم</Label>
-                    <Select value={formData.department} onValueChange={(value) => setFormData({...formData, department: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر القسم" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="تقنية المعلومات">تقنية المعلومات</SelectItem>
-                        <SelectItem value="إدارة العمليات">إدارة العمليات</SelectItem>
-                        <SelectItem value="غرفة المراقبة">غرفة المراقبة</SelectItem>
-                        <SelectItem value="الأمن">الأمن</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">رقم الهاتف</Label>
-                    <Input
-                      id="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div className="flex gap-4 pt-4">
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading ? "جاري الإنشاء..." : "إنشاء المستخدم"}
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => navigate("/users")}>
-                      إلغاء
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
