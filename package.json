@@ -4,11 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "npm run dev:frontend & npm run dev:backend",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build",
+    "build:dev": "npm --prefix frontend run build:dev",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "npm --prefix frontend run preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
